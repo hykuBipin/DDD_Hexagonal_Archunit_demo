@@ -37,7 +37,7 @@ jobs:
         run: |
           mkdir -p _deploy
 
-          # Environment variables for the app (secrets injected here)
+          # Environment variables for the app
           cat > _deploy/app.env << EOF
           APP_PUBLIC_URL=${{ secrets.APP_PUBLIC_URL }}
           SWIGGY_MCP_TOKEN=
@@ -64,8 +64,49 @@ jobs:
           WantedBy=multi-user.target
           EOF
 
-          # nginx config is written directly on the server in step 7
-          # so it can include HTTPS once the cert exists
+          # HTTP-only nginx config — used on first deploy for ACME challenge
+          cat > _deploy/nginx-http.conf << 'EOF'
+          server {
+              listen 80;
+              server_name order-together.sahanshah.dev;
+              location / {
+                  proxy_pass http://localhost:8080;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_read_timeout 60s;
+              }
+          }
+          EOF
+
+          # Full HTTPS nginx config — used on every deploy once cert exists
+          cat > _deploy/nginx-https.conf << 'EOF'
+          server {
+              listen 80;
+              server_name order-together.sahanshah.dev;
+              return 301 https://$host$request_uri;
+          }
+
+          server {
+              listen 443 ssl;
+              server_name order-together.sahanshah.dev;
+
+              ssl_certificate /etc/letsencrypt/live/order-together.sahanshah.dev/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/order-together.sahanshah.dev/privkey.pem;
+              ssl_protocols TLSv1.2 TLSv1.3;
+              ssl_prefer_server_ciphers off;
+
+              location / {
+                  proxy_pass http://localhost:8080;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_read_timeout 60s;
+              }
+          }
+          EOF
 
       # ── 5. Install prerequisites on Droplet (before SCP) ────────────────────
       - name: Install Java, nginx and certbot
@@ -73,8 +114,8 @@ jobs:
           ssh -i ~/.ssh/deploy_key root@${{ secrets.DROPLET_HOST }} bash << 'ENDSSH'
             set -e
             pkgs=()
-            command -v java   &>/dev/null || pkgs+=(openjdk-21-jre-headless)
-            command -v nginx  &>/dev/null || pkgs+=(nginx)
+            command -v java    &>/dev/null || pkgs+=(openjdk-21-jre-headless)
+            command -v nginx   &>/dev/null || pkgs+=(nginx)
             command -v certbot &>/dev/null || pkgs+=(certbot python3-certbot-nginx)
             if [ ${#pkgs[@]} -gt 0 ]; then
               echo "Installing: ${pkgs[*]}"
@@ -87,7 +128,6 @@ jobs:
       # ── 6. Upload files to Droplet ───────────────────────────────────────────
       - name: Upload files
         env:
-          SSH: ssh -i ~/.ssh/deploy_key root@${{ secrets.DROPLET_HOST }}
           SCP: scp -i ~/.ssh/deploy_key
         run: |
           $SCP order-together-backend/target/order-together-backend-0.0.1-SNAPSHOT.jar \
@@ -99,7 +139,13 @@ jobs:
           $SCP _deploy/ordertogether.service \
                root@${{ secrets.DROPLET_HOST }}:/etc/systemd/system/ordertogether.service
 
-      # ── 7. Enable service, configure nginx with HTTPS, restart ─────────────
+          $SCP _deploy/nginx-http.conf \
+               root@${{ secrets.DROPLET_HOST }}:/opt/ordertogether/nginx-http.conf
+
+          $SCP _deploy/nginx-https.conf \
+               root@${{ secrets.DROPLET_HOST }}:/opt/ordertogether/nginx-https.conf
+
+      # ── 7. Enable service, configure nginx with HTTPS, restart ───────────────
       - name: Start and verify
         run: |
           ssh -i ~/.ssh/deploy_key root@${{ secrets.DROPLET_HOST }} bash << 'ENDSSH'
@@ -108,22 +154,11 @@ jobs:
             systemctl daemon-reload
             systemctl enable ordertogether
 
-            # First deploy: no cert yet — serve HTTP so certbot can validate
-            if [ ! -d /etc/letsencrypt/live/order-together.sahanshah.dev ]; then
-              cat > /etc/nginx/sites-available/ordertogether << 'NGINXEOF'
-server {
-    listen 80;
-    server_name order-together.sahanshah.dev;
-    location / {
-        proxy_pass http://localhost:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 60s;
-    }
-}
-NGINXEOF
+            CERT_DIR=/etc/letsencrypt/live/order-together.sahanshah.dev
+
+            # First deploy: no cert yet — serve HTTP so certbot can complete the challenge
+            if [ ! -d "$CERT_DIR" ]; then
+              cp /opt/ordertogether/nginx-http.conf /etc/nginx/sites-available/ordertogether
               ln -sf /etc/nginx/sites-available/ordertogether \
                      /etc/nginx/sites-enabled/ordertogether
               rm -f /etc/nginx/sites-enabled/default
@@ -136,34 +171,8 @@ NGINXEOF
                 -m k.sahanshah@gmail.com
             fi
 
-            # Write the full HTTPS config (cert is guaranteed to exist here)
-            cat > /etc/nginx/sites-available/ordertogether << 'NGINXEOF'
-server {
-    listen 80;
-    server_name order-together.sahanshah.dev;
-    return 301 https://$host$request_uri;
-}
-
-server {
-    listen 443 ssl;
-    server_name order-together.sahanshah.dev;
-
-    ssl_certificate /etc/letsencrypt/live/order-together.sahanshah.dev/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/order-together.sahanshah.dev/privkey.pem;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_prefer_server_ciphers off;
-
-    location / {
-        proxy_pass http://localhost:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 60s;
-    }
-}
-NGINXEOF
-
+            # Apply full HTTPS config (cert is guaranteed to exist at this point)
+            cp /opt/ordertogether/nginx-https.conf /etc/nginx/sites-available/ordertogether
             ln -sf /etc/nginx/sites-available/ordertogether \
                    /etc/nginx/sites-enabled/ordertogether
             rm -f /etc/nginx/sites-enabled/default
