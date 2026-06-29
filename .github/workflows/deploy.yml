@@ -1,0 +1,137 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - uses: actions/checkout@v4
+
+      # ── 2. Build JAR ─────────────────────────────────────────────────────────
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+
+      - name: Build JAR
+        working-directory: order-together-backend
+        run: ./mvnw package -DskipTests -q
+
+      # ── 3. Prepare SSH ───────────────────────────────────────────────────────
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DROPLET_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.DROPLET_HOST }}" >> ~/.ssh/known_hosts
+
+      # ── 4. Write config files locally (then SCP them) ────────────────────────
+      - name: Write config files
+        run: |
+          mkdir -p _deploy
+
+          # Environment variables for the app (secrets injected here)
+          cat > _deploy/app.env << EOF
+          APP_PUBLIC_URL=${{ secrets.APP_PUBLIC_URL }}
+          SWIGGY_MCP_TOKEN=
+          SWIGGY_DEFAULT_ADDRESS_ID=${{ secrets.SWIGGY_DEFAULT_ADDRESS_ID }}
+          EOF
+
+          # systemd service unit
+          cat > _deploy/ordertogether.service << 'EOF'
+          [Unit]
+          Description=Order Together Backend
+          After=network.target
+
+          [Service]
+          User=root
+          WorkingDirectory=/opt/ordertogether
+          EnvironmentFile=/opt/ordertogether/.env
+          ExecStart=/usr/bin/java -jar /opt/ordertogether/app.jar
+          Restart=always
+          RestartSec=5
+          StandardOutput=journal
+          StandardError=journal
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+          # nginx reverse proxy config
+          cat > _deploy/nginx-ordertogether.conf << 'EOF'
+          server {
+              listen 80;
+              server_name _;
+
+              location / {
+                  proxy_pass http://localhost:8080;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_read_timeout 60s;
+              }
+          }
+          EOF
+
+      # ── 5. Upload files to Droplet ───────────────────────────────────────────
+      - name: Upload files
+        env:
+          SSH: ssh -i ~/.ssh/deploy_key root@${{ secrets.DROPLET_HOST }}
+          SCP: scp -i ~/.ssh/deploy_key
+        run: |
+          $SSH "mkdir -p /opt/ordertogether"
+
+          $SCP order-together-backend/target/order-together-backend-0.0.1-SNAPSHOT.jar \
+               root@${{ secrets.DROPLET_HOST }}:/opt/ordertogether/app.jar
+
+          $SCP _deploy/app.env \
+               root@${{ secrets.DROPLET_HOST }}:/opt/ordertogether/.env
+
+          $SCP _deploy/ordertogether.service \
+               root@${{ secrets.DROPLET_HOST }}:/etc/systemd/system/ordertogether.service
+
+          $SCP _deploy/nginx-ordertogether.conf \
+               root@${{ secrets.DROPLET_HOST }}:/etc/nginx/sites-available/ordertogether
+
+      # ── 6. Bootstrap & restart ───────────────────────────────────────────────
+      - name: Bootstrap and restart
+        run: |
+          ssh -i ~/.ssh/deploy_key root@${{ secrets.DROPLET_HOST }} bash << 'ENDSSH'
+            set -e
+
+            # Install Java + nginx on first deploy
+            if ! command -v java &>/dev/null; then
+              echo "Installing Java 21 and nginx..."
+              apt-get update -q
+              apt-get install -y openjdk-21-jre-headless nginx
+            fi
+
+            # Enable + reload the systemd service
+            systemctl daemon-reload
+            systemctl enable ordertogether
+
+            # Wire up nginx site (idempotent)
+            ln -sf /etc/nginx/sites-available/ordertogether \
+                   /etc/nginx/sites-enabled/ordertogether
+            rm -f /etc/nginx/sites-enabled/default
+            nginx -t && systemctl reload nginx
+
+            # Restart the app with the new JAR
+            systemctl restart ordertogether
+            sleep 5
+
+            if systemctl is-active --quiet ordertogether; then
+              echo "✅ ordertogether is running"
+            else
+              echo "❌ Service failed to start — last 30 log lines:"
+              journalctl -u ordertogether -n 30 --no-pager
+              exit 1
+            fi
+          ENDSSH
