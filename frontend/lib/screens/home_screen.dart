@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/address.dart';
+import '../services/auth_service.dart';
 import 'location_screen.dart';
+import 'login_screen.dart';
 import 'results_screen.dart';
 import '../widgets/animated_search_bar.dart';
 import '../widgets/search_popup.dart';
@@ -26,6 +28,38 @@ class _HomeScreenState extends State<HomeScreen> {
     ('assets/images/sushi.webp', 'assets/images/ramen.jpg', 'sushi', 'ramen'),
     ('assets/images/paneer_tikka.webp', 'assets/images/butter_naan.jpg', 'paneer tikka', 'butter naan'),
   ];
+
+  Future<void> _signOut() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Sign out?',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        content: Text("You'll need to sign in again to search.",
+            style: GoogleFonts.poppins(fontSize: 14)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Cancel', style: GoogleFonts.poppins()),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text('Sign out',
+                style: GoogleFonts.poppins(color: const Color(0xFFFC8019))),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true && mounted) {
+      await AuthService.logout();
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      }
+    }
+  }
 
   Future<void> _openLocationPicker() async {
     final address = await Navigator.push<Address>(
@@ -121,64 +155,78 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildAddressHeader() {
     final addr = _selectedAddress;
-    return GestureDetector(
-      onTap: _openLocationPicker,
-      behavior: HitTestBehavior.opaque,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 2),
-            child: Icon(Icons.location_on, color: Color(0xFFFC8019), size: 22),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Column(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: _openLocationPicker,
+            behavior: HitTestBehavior.opaque,
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      addr != null
-                          ? (addr.addressTag ??
-                              addr.addressCategory ??
-                              'Location')
-                          : 'Set delivery address',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: addr != null
-                            ? const Color(0xFF1C1C1C)
-                            : const Color(0xFFFC8019),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 20,
-                      color: addr != null
-                          ? const Color(0xFF1C1C1C)
-                          : const Color(0xFFFC8019),
-                    ),
-                  ],
+                const Padding(
+                  padding: EdgeInsets.only(top: 2),
+                  child: Icon(Icons.location_on,
+                      color: Color(0xFFFC8019), size: 22),
                 ),
-                if (addr != null) ...[
-                  const SizedBox(height: 1),
-                  Text(
-                    addr.addressLine,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: const Color(0xFF6B6B6B),
-                    ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            addr != null
+                                ? (addr.addressTag ??
+                                    addr.addressCategory ??
+                                    'Location')
+                                : 'Set delivery address',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: addr != null
+                                  ? const Color(0xFF1C1C1C)
+                                  : const Color(0xFFFC8019),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            size: 20,
+                            color: addr != null
+                                ? const Color(0xFF1C1C1C)
+                                : const Color(0xFFFC8019),
+                          ),
+                        ],
+                      ),
+                      if (addr != null) ...[
+                        const SizedBox(height: 1),
+                        Text(
+                          addr.addressLine,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: const Color(0xFF6B6B6B),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
+                ),
               ],
             ),
           ),
-        ],
-      ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.logout_rounded,
+              color: Color(0xFF9B9B9B), size: 22),
+          onPressed: _signOut,
+          tooltip: 'Sign out',
+        ),
+      ],
     );
   }
 
