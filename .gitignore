@@ -49,3 +49,4 @@ frontend/ios/Flutter/flutter_export_environment.sh
 # ── Sensitive documents & dev artifacts ──────────────────────────────────────
 *.pdf
 order-together
+id_ssh
