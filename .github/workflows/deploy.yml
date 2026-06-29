@@ -64,31 +64,32 @@ jobs:
           WantedBy=multi-user.target
           EOF
 
-          # nginx reverse proxy config
+          # nginx reverse proxy config (certbot will add the SSL block automatically)
           cat > _deploy/nginx-ordertogether.conf << 'EOF'
           server {
               listen 80;
-              server_name _;
+              server_name order-together.sahanshah.dev;
 
               location / {
                   proxy_pass http://localhost:8080;
                   proxy_set_header Host $host;
                   proxy_set_header X-Real-IP $remote_addr;
                   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
                   proxy_read_timeout 60s;
               }
           }
           EOF
 
       # ── 5. Install prerequisites on Droplet (before SCP) ────────────────────
-      - name: Install Java and nginx
+      - name: Install Java, nginx and certbot
         run: |
           ssh -i ~/.ssh/deploy_key root@${{ secrets.DROPLET_HOST }} bash << 'ENDSSH'
             set -e
             if ! command -v java &>/dev/null || ! command -v nginx &>/dev/null; then
-              echo "Installing Java 21 and nginx..."
+              echo "Installing Java 21, nginx and certbot..."
               apt-get update -q
-              apt-get install -y openjdk-21-jre-headless nginx
+              apt-get install -y openjdk-21-jre-headless nginx certbot python3-certbot-nginx
             fi
             mkdir -p /opt/ordertogether /etc/nginx/sites-available /etc/nginx/sites-enabled
           ENDSSH
@@ -111,7 +112,7 @@ jobs:
           $SCP _deploy/nginx-ordertogether.conf \
                root@${{ secrets.DROPLET_HOST }}:/etc/nginx/sites-available/ordertogether
 
-      # ── 7. Enable service and reload nginx ───────────────────────────────────
+      # ── 7. Enable service, issue TLS cert, reload nginx ─────────────────────
       - name: Start and verify
         run: |
           ssh -i ~/.ssh/deploy_key root@${{ secrets.DROPLET_HOST }} bash << 'ENDSSH'
@@ -124,6 +125,17 @@ jobs:
                    /etc/nginx/sites-enabled/ordertogether
             rm -f /etc/nginx/sites-enabled/default
             nginx -t && systemctl reload nginx
+
+            # Obtain cert on first deploy; skip silently on subsequent runs
+            if [ ! -d /etc/letsencrypt/live/order-together.sahanshah.dev ]; then
+              echo "Obtaining TLS certificate..."
+              certbot --nginx \
+                -d order-together.sahanshah.dev \
+                --non-interactive \
+                --agree-tos \
+                -m k.sahanshah@gmail.com \
+                --redirect
+            fi
 
             systemctl restart ordertogether
             sleep 5

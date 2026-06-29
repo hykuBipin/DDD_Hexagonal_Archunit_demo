@@ -5,5 +5,5 @@
 // ignore: do_not_use_environment
 const String backendBaseUrl = String.fromEnvironment(
   'BACKEND_URL',
-  defaultValue: 'http://168.144.189.201',
+  defaultValue: 'https://order-together.sahanshah.dev',
 );
