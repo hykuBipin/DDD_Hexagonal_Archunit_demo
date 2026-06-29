@@ -64,22 +64,8 @@ jobs:
           WantedBy=multi-user.target
           EOF
 
-          # nginx reverse proxy config (certbot will add the SSL block automatically)
-          cat > _deploy/nginx-ordertogether.conf << 'EOF'
-          server {
-              listen 80;
-              server_name order-together.sahanshah.dev;
-
-              location / {
-                  proxy_pass http://localhost:8080;
-                  proxy_set_header Host $host;
-                  proxy_set_header X-Real-IP $remote_addr;
-                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto $scheme;
-                  proxy_read_timeout 60s;
-              }
-          }
-          EOF
+          # nginx config is written directly on the server in step 7
+          # so it can include HTTPS once the cert exists
 
       # ── 5. Install prerequisites on Droplet (before SCP) ────────────────────
       - name: Install Java, nginx and certbot
@@ -113,10 +99,7 @@ jobs:
           $SCP _deploy/ordertogether.service \
                root@${{ secrets.DROPLET_HOST }}:/etc/systemd/system/ordertogether.service
 
-          $SCP _deploy/nginx-ordertogether.conf \
-               root@${{ secrets.DROPLET_HOST }}:/etc/nginx/sites-available/ordertogether
-
-      # ── 7. Enable service, issue TLS cert, reload nginx ─────────────────────
+      # ── 7. Enable service, configure nginx with HTTPS, restart ─────────────
       - name: Start and verify
         run: |
           ssh -i ~/.ssh/deploy_key root@${{ secrets.DROPLET_HOST }} bash << 'ENDSSH'
@@ -125,21 +108,66 @@ jobs:
             systemctl daemon-reload
             systemctl enable ordertogether
 
+            # First deploy: no cert yet — serve HTTP so certbot can validate
+            if [ ! -d /etc/letsencrypt/live/order-together.sahanshah.dev ]; then
+              cat > /etc/nginx/sites-available/ordertogether << 'NGINXEOF'
+server {
+    listen 80;
+    server_name order-together.sahanshah.dev;
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+    }
+}
+NGINXEOF
+              ln -sf /etc/nginx/sites-available/ordertogether \
+                     /etc/nginx/sites-enabled/ordertogether
+              rm -f /etc/nginx/sites-enabled/default
+              nginx -t && systemctl reload nginx
+
+              echo "Obtaining TLS certificate..."
+              certbot certonly --nginx \
+                -d order-together.sahanshah.dev \
+                --non-interactive --agree-tos \
+                -m k.sahanshah@gmail.com
+            fi
+
+            # Write the full HTTPS config (cert is guaranteed to exist here)
+            cat > /etc/nginx/sites-available/ordertogether << 'NGINXEOF'
+server {
+    listen 80;
+    server_name order-together.sahanshah.dev;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name order-together.sahanshah.dev;
+
+    ssl_certificate /etc/letsencrypt/live/order-together.sahanshah.dev/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/order-together.sahanshah.dev/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+    }
+}
+NGINXEOF
+
             ln -sf /etc/nginx/sites-available/ordertogether \
                    /etc/nginx/sites-enabled/ordertogether
             rm -f /etc/nginx/sites-enabled/default
             nginx -t && systemctl reload nginx
-
-            # Obtain cert on first deploy; skip silently on subsequent runs
-            if [ ! -d /etc/letsencrypt/live/order-together.sahanshah.dev ]; then
-              echo "Obtaining TLS certificate..."
-              certbot --nginx \
-                -d order-together.sahanshah.dev \
-                --non-interactive \
-                --agree-tos \
-                -m k.sahanshah@gmail.com \
-                --redirect
-            fi
 
             systemctl restart ordertogether
             sleep 5

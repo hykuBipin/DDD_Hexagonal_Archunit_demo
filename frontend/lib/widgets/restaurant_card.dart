@@ -34,7 +34,14 @@ class RestaurantCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF0F0F0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 16,
+            spreadRadius: 0,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       clipBehavior: Clip.hardEdge,
       child: Column(
@@ -159,7 +166,7 @@ class RestaurantCard extends StatelessWidget {
   }
 
   Widget _buildContent() {
-    // Rating badge (green Swiggy-style)
+    // Green rating badge — star + number inside
     Widget? ratingBadge;
     if (restaurant.avgRating != null) {
       ratingBadge = Container(
@@ -171,14 +178,15 @@ class RestaurantCard extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.star_rounded, color: Colors.white, size: 11),
-            const SizedBox(width: 2),
+            const Icon(Icons.star_rounded, color: Colors.white, size: 12),
+            const SizedBox(width: 3),
             Text(
               restaurant.avgRating!.toStringAsFixed(1),
               style: GoogleFonts.poppins(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
+                height: 1,
               ),
             ),
           ],
@@ -186,8 +194,9 @@ class RestaurantCard extends StatelessWidget {
       );
     }
 
-    // Location line: area + distance
-    final locationParts = <String>[
+    // Single info string: "(193) · Thane West · 1.5 km"
+    final infoParts = <String>[
+      if (restaurant.totalRatings != null) '(${restaurant.totalRatings})',
       if (restaurant.areaName?.isNotEmpty ?? false) restaurant.areaName!,
       if (restaurant.distanceKm != null)
         '${restaurant.distanceKm!.toStringAsFixed(1)} km',
@@ -210,34 +219,30 @@ class RestaurantCard extends StatelessWidget {
           Text(
             restaurant.name,
             style: GoogleFonts.poppins(
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF1C1C1C),
+              height: 1.2,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 6),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (ratingBadge != null) ...[
                 ratingBadge,
                 const SizedBox(width: 6),
               ],
-              if (restaurant.totalRatings != null) ...[
-                Text(
-                  '(${restaurant.totalRatings})',
-                  style: GoogleFonts.poppins(
-                      fontSize: 12, color: const Color(0xFF6B6B6B)),
-                ),
-                const SizedBox(width: 6),
-              ],
-              if (locationParts.isNotEmpty)
+              if (infoParts.isNotEmpty)
                 Expanded(
                   child: Text(
-                    locationParts.join(' · '),
+                    infoParts.join(' · '),
                     style: GoogleFonts.poppins(
-                        fontSize: 12, color: const Color(0xFF6B6B6B)),
+                      fontSize: 13,
+                      color: const Color(0xFF6B6B6B),
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -249,7 +254,9 @@ class RestaurantCard extends StatelessWidget {
             Text(
               metaParts.join(' · '),
               style: GoogleFonts.poppins(
-                  fontSize: 12, color: const Color(0xFF6B6B6B)),
+                fontSize: 13,
+                color: const Color(0xFF6B6B6B),
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
