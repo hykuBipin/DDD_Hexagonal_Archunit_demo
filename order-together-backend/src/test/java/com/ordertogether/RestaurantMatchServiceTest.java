@@ -27,7 +27,7 @@ class RestaurantMatchServiceTest {
 				eta, null,
 				"₹300", status, null,
 				null, List.of("North Indian"),
-				null, null);
+				null, null, null);
 	}
 
 	@Test
