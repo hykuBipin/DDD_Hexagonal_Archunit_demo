@@ -25,7 +25,8 @@ public record Restaurant(
 		String imageUrl,
 		List<String> cuisines,
 		String areaName,
-		Double distanceKm) {
+		Double distanceKm,
+		String offer) {
 
 	/** True unless the restaurant explicitly reports any CLOSED availability status. */
 	public boolean isOpen() {

@@ -24,7 +24,8 @@ public record MatchedRestaurant(
 		Double distanceKm,
 		List<String> matchedPreferences,
 		String appDeepLink,
-		String webUrl) {
+		String webUrl,
+		String offer) {
 
 	public static MatchedRestaurant from(Restaurant r, List<String> matchedPreferences) {
 		return new MatchedRestaurant(
@@ -43,6 +44,7 @@ public record MatchedRestaurant(
 				r.distanceKm(),
 				matchedPreferences,
 				"swiggy://menu?restaurant_id=" + r.id(),
-				"https://www.swiggy.com/restaurants/" + r.id());
+				"https://www.swiggy.com/restaurants/" + r.id(),
+				r.offer());
 	}
 }

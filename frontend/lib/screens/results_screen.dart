@@ -23,7 +23,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
   MatchResponse? _response;
   String? _error;
   bool _loading = true;
-  bool _showBanner = false;
   int _visibleCount = 0;
 
   @override
@@ -36,7 +35,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
     setState(() {
       _loading = true;
       _error = null;
-      _showBanner = false;
       _visibleCount = 0;
     });
     try {
@@ -49,11 +47,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
         _response = response;
         _loading = false;
       });
-      // Animate the match banner in on the next frame.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() => _showBanner = true);
-      });
-      // Stagger cards in.
       for (int i = 0; i < response.restaurants.length; i++) {
         await Future.delayed(const Duration(milliseconds: 80));
         if (!mounted) break;
@@ -73,28 +66,68 @@ class _ResultsScreenState extends State<ResultsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Color(0xFF1C1C1C),
-            size: 20,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'OrderTogether',
-          style: GoogleFonts.poppins(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFF1C1C1C),
-          ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(),
+            const Divider(height: 1, thickness: 1, color: Color(0xFFF0F0F0)),
+            Expanded(child: _buildBody()),
+          ],
         ),
       ),
-      body: _buildBody(),
+    );
+  }
+
+  Widget _buildHeader() {
+    final query = widget.preferences.join(' + ');
+    String? subtitle;
+    if (!_loading && _error == null && _response != null) {
+      final count = _response!.matchCount;
+      subtitle =
+          'Showing $count matched ${count == 1 ? 'restaurant' : 'restaurants'}';
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 10, 20, 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new,
+                size: 20, color: Color(0xFF1C1C1C)),
+            onPressed: () => Navigator.pop(context),
+          ),
+          const SizedBox(width: 2),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  query,
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1C1C1C),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 1),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: const Color(0xFF6B6B6B),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -128,15 +161,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
               fontSize: 14,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            widget.preferences.join(' + '),
-            style: GoogleFonts.poppins(
-              color: const Color(0xFFFC8019),
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
         ],
       ),
     );
@@ -149,11 +173,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.wifi_off_outlined,
-              size: 56,
-              color: Color(0xFF9B9B9B),
-            ),
+            const Icon(Icons.wifi_off_outlined,
+                size: 56, color: Color(0xFF9B9B9B)),
             const SizedBox(height: 16),
             Text(
               'Something went wrong',
@@ -168,9 +189,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               'Check your connection and try again',
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
-                fontSize: 13,
-                color: const Color(0xFF6B6B6B),
-              ),
+                  fontSize: 13, color: const Color(0xFF6B6B6B)),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
@@ -180,17 +199,13 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 14,
-                ),
+                    borderRadius: BorderRadius.circular(12)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
               ),
-              child: Text(
-                'Try Again',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-              ),
+              child: Text('Try Again',
+                  style:
+                      GoogleFonts.poppins(fontWeight: FontWeight.w600)),
             ),
           ],
         ),
@@ -205,11 +220,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.search_off_rounded,
-              size: 64,
-              color: Color(0xFFFC8019),
-            ),
+            const Icon(Icons.search_off_rounded,
+                size: 64, color: Color(0xFFFC8019)),
             const SizedBox(height: 16),
             Text(
               'No matches found',
@@ -221,7 +233,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             ),
             const SizedBox(height: 10),
             Text(
-              'No restaurant nearby serves all of:\n${widget.preferences.join(' + ')}',
+              'No restaurant nearby serves:\n${widget.preferences.join(' + ')}',
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 fontSize: 13,
@@ -237,17 +249,13 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 14,
-                ),
+                    borderRadius: BorderRadius.circular(12)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
               ),
-              child: Text(
-                'Try different cravings',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-              ),
+              child: Text('Try different cravings',
+                  style:
+                      GoogleFonts.poppins(fontWeight: FontWeight.w600)),
             ),
           ],
         ),
@@ -257,11 +265,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   Widget _buildResults(MatchResponse resp) {
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-      itemCount: resp.restaurants.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) return _buildMatchBanner(resp);
-        final i = index - 1;
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+      itemCount: resp.restaurants.length,
+      itemBuilder: (context, i) {
         final visible = i < _visibleCount;
         return AnimatedOpacity(
           opacity: visible ? 1.0 : 0.0,
@@ -278,68 +284,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildMatchBanner(MatchResponse resp) {
-    final count = resp.matchCount;
-    final label = widget.preferences.join(' + ');
-    return AnimatedScale(
-      scale: _showBanner ? 1.0 : 0.85,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.elasticOut,
-      child: AnimatedOpacity(
-        opacity: _showBanner ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 280),
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 16),
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFF3E8),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFFFD4A3)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2ECC71),
-                  borderRadius: BorderRadius.circular(21),
-                ),
-                child: const Icon(Icons.check_rounded, color: Colors.white, size: 24),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '$count ${count == 1 ? 'restaurant' : 'restaurants'} found',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF1C1C1C),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Serving $label',
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        color: const Color(0xFF6B6B6B),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

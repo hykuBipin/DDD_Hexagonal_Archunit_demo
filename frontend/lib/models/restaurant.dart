@@ -15,6 +15,7 @@ class MatchedRestaurant {
   final List<String> matchedPreferences;
   final String appDeepLink;
   final String webUrl;
+  final String? offer;
 
   const MatchedRestaurant({
     required this.id,
@@ -33,6 +34,7 @@ class MatchedRestaurant {
     required this.matchedPreferences,
     required this.appDeepLink,
     required this.webUrl,
+    this.offer,
   });
 
   factory MatchedRestaurant.fromJson(Map<String, dynamic> json) =>
@@ -58,6 +60,7 @@ class MatchedRestaurant {
             .toList(),
         appDeepLink: json['appDeepLink'] as String,
         webUrl: json['webUrl'] as String,
+        offer: json['offer'] as String?,
       );
 }
 

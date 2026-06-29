@@ -56,6 +56,7 @@ class RestaurantCard extends StatelessWidget {
   Widget _buildImage() {
     final url = restaurant.imageUrl;
     final eta = _etaBadgeText;
+    final offer = restaurant.offer;
 
     return AspectRatio(
       aspectRatio: 4 / 3,
@@ -71,6 +72,35 @@ class RestaurantCard extends StatelessWidget {
                   errorWidget: (context, url, error) => _imagePlaceholder(),
                 )
               : _imagePlaceholder(),
+          // Vignette — makes offer text and ETA badge readable
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.45, 1.0],
+                  colors: [Colors.transparent, Color(0xBB000000)],
+                ),
+              ),
+            ),
+          ),
+          // Offer text — bottom left
+          if (offer != null && offer.isNotEmpty)
+            Positioned(
+              bottom: 10,
+              left: 12,
+              child: Text(
+                offer,
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  height: 1.2,
+                ),
+              ),
+            ),
+          // ETA badge — bottom right
           if (eta.isNotEmpty)
             Positioned(
               bottom: 10,
