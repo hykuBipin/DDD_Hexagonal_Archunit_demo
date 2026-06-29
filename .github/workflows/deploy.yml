@@ -86,10 +86,14 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key root@${{ secrets.DROPLET_HOST }} bash << 'ENDSSH'
             set -e
-            if ! command -v java &>/dev/null || ! command -v nginx &>/dev/null; then
-              echo "Installing Java 21, nginx and certbot..."
+            pkgs=()
+            command -v java   &>/dev/null || pkgs+=(openjdk-21-jre-headless)
+            command -v nginx  &>/dev/null || pkgs+=(nginx)
+            command -v certbot &>/dev/null || pkgs+=(certbot python3-certbot-nginx)
+            if [ ${#pkgs[@]} -gt 0 ]; then
+              echo "Installing: ${pkgs[*]}"
               apt-get update -q
-              apt-get install -y openjdk-21-jre-headless nginx certbot python3-certbot-nginx
+              apt-get install -y "${pkgs[@]}"
             fi
             mkdir -p /opt/ordertogether /etc/nginx/sites-available /etc/nginx/sites-enabled
           ENDSSH
