@@ -19,20 +19,22 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Server-side OAuth 2.1 PKCE broker.
  *
- * <p>Keeps PKCE state in-memory (fine for MVP / single-instance dev). In production
- * replace the {@code pkceStore} with Redis or a short-lived DB table.
+ * <p>Keeps PKCE state in-memory (fine for MVP / single-instance). Abandoned flows are
+ * cleaned up automatically after 5 minutes via Caffeine TTL.
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -40,8 +42,11 @@ public class AuthController {
 
 	private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
-	/** state → code_verifier; entries expire implicitly once the callback is handled. */
-	private final ConcurrentHashMap<String, String> pkceStore = new ConcurrentHashMap<>();
+	/** state → code_verifier; auto-expires after 5 min to clean up abandoned auth flows. */
+	private final Cache<String, String> pkceStore = Caffeine.newBuilder()
+			.expireAfterWrite(Duration.ofMinutes(5))
+			.maximumSize(1000)
+			.build();
 
 	private final AppProperties props;
 	private final WebClient webClient;
@@ -93,7 +98,8 @@ public class AuthController {
 			@RequestParam String code,
 			@RequestParam String state) {
 
-		String codeVerifier = pkceStore.remove(state);
+		String codeVerifier = pkceStore.getIfPresent(state);
+		if (codeVerifier != null) pkceStore.invalidate(state);
 		if (codeVerifier == null) {
 			log.warn("OAuth callback received unknown state={}", state);
 			return Mono.just(ResponseEntity.badRequest().<Void>build());
