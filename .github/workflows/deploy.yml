@@ -80,14 +80,25 @@ jobs:
           }
           EOF
 
-      # ── 5. Upload files to Droplet ───────────────────────────────────────────
+      # ── 5. Install prerequisites on Droplet (before SCP) ────────────────────
+      - name: Install Java and nginx
+        run: |
+          ssh -i ~/.ssh/deploy_key root@${{ secrets.DROPLET_HOST }} bash << 'ENDSSH'
+            set -e
+            if ! command -v java &>/dev/null || ! command -v nginx &>/dev/null; then
+              echo "Installing Java 21 and nginx..."
+              apt-get update -q
+              apt-get install -y openjdk-21-jre-headless nginx
+            fi
+            mkdir -p /opt/ordertogether /etc/nginx/sites-available /etc/nginx/sites-enabled
+          ENDSSH
+
+      # ── 6. Upload files to Droplet ───────────────────────────────────────────
       - name: Upload files
         env:
           SSH: ssh -i ~/.ssh/deploy_key root@${{ secrets.DROPLET_HOST }}
           SCP: scp -i ~/.ssh/deploy_key
         run: |
-          $SSH "mkdir -p /opt/ordertogether"
-
           $SCP order-together-backend/target/order-together-backend-0.0.1-SNAPSHOT.jar \
                root@${{ secrets.DROPLET_HOST }}:/opt/ordertogether/app.jar
 
@@ -100,30 +111,20 @@ jobs:
           $SCP _deploy/nginx-ordertogether.conf \
                root@${{ secrets.DROPLET_HOST }}:/etc/nginx/sites-available/ordertogether
 
-      # ── 6. Bootstrap & restart ───────────────────────────────────────────────
-      - name: Bootstrap and restart
+      # ── 7. Enable service and reload nginx ───────────────────────────────────
+      - name: Start and verify
         run: |
           ssh -i ~/.ssh/deploy_key root@${{ secrets.DROPLET_HOST }} bash << 'ENDSSH'
             set -e
 
-            # Install Java + nginx on first deploy
-            if ! command -v java &>/dev/null; then
-              echo "Installing Java 21 and nginx..."
-              apt-get update -q
-              apt-get install -y openjdk-21-jre-headless nginx
-            fi
-
-            # Enable + reload the systemd service
             systemctl daemon-reload
             systemctl enable ordertogether
 
-            # Wire up nginx site (idempotent)
             ln -sf /etc/nginx/sites-available/ordertogether \
                    /etc/nginx/sites-enabled/ordertogether
             rm -f /etc/nginx/sites-enabled/default
             nginx -t && systemctl reload nginx
 
-            # Restart the app with the new JAR
             systemctl restart ordertogether
             sleep 5
 
