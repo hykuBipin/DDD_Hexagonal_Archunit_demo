@@ -1,0 +1,51 @@
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# ── Java / Maven ──────────────────────────────────────────────────────────────
+order-together-backend/target/
+*.class
+*.jar
+*.war
+*.ear
+
+# ── Spring Boot secrets ───────────────────────────────────────────────────────
+# application.properties is committed (no secrets in it now).
+# Override files for local dev stay local.
+order-together-backend/src/main/resources/application-local.properties
+order-together-backend/src/main/resources/application-dev.properties
+.env
+*.env
+
+# ── Flutter / Dart ────────────────────────────────────────────────────────────
+frontend/build/
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/.pub-cache/
+frontend/.pub/
+frontend/android/.gradle/
+frontend/android/local.properties
+frontend/android/app/debug/
+frontend/android/app/release/
+frontend/android/key.properties
+frontend/ios/.symlinks/
+frontend/ios/Pods/
+frontend/ios/Flutter/Generated.xcconfig
+frontend/ios/Flutter/flutter_export_environment.sh
+
+# ── Binaries / archives ───────────────────────────────────────────────────────
+*.tgz
+*.zip
+*.gz
+
+# ── Sensitive documents & dev artifacts ──────────────────────────────────────
+*.pdf
+order-together
