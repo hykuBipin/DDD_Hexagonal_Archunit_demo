@@ -3,7 +3,7 @@ HTML_CONTENT = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swiggy OrderTogether & Dieto Caretaker Simulator</title>
+    <title>Dieto AI Health & Calorie Caretaker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -80,7 +80,7 @@ HTML_CONTENT = """<!DOCTYPE html>
 
         .container {
             display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
+            grid-template-columns: 1.1fr 0.9fr;
             gap: 32px;
             max-width: 1320px;
             margin: 32px auto;
@@ -108,7 +108,7 @@ HTML_CONTENT = """<!DOCTYPE html>
 
         .setup-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1.2fr 1fr;
             gap: 20px;
         }
 
@@ -132,67 +132,23 @@ HTML_CONTENT = """<!DOCTYPE html>
             outline: none;
         }
 
-        .btn-match {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            text-align: center;
-            transition: background-color 0.15s;
-        }
-
-        .btn-match:hover {
-            background-color: #e06c11;
-        }
-
-        .matched-restaurants {
-            display: none;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .restaurant-row {
-            background-color: var(--bg-card);
-            border-radius: 8px;
-            padding: 16px;
-            border: 1px solid var(--border-color);
+        .preferences-checklist {
             display: flex;
-            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .pref-checkbox-label {
+            font-size: 13px;
+            display: flex;
             align-items: center;
+            gap: 6px;
             cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .restaurant-row.selected {
-            border-color: var(--primary);
-            background-color: rgba(252, 128, 25, 0.03);
-            box-shadow: 0 4px 12px rgba(252,128,25,0.06);
-        }
-
-        .restaurant-details {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .restaurant-name {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .restaurant-meta {
-            font-size: 12px;
-            color: var(--text-muted);
-            display: flex;
-            gap: 12px;
         }
 
         .menu-section {
-            display: none;
+            display: flex;
             flex-direction: column;
             gap: 16px;
         }
@@ -274,31 +230,20 @@ HTML_CONTENT = """<!DOCTYPE html>
             gap: 6px;
         }
 
-        .diner-profile-box {
+        .profile-tracker-box {
             background-color: rgba(255,255,255,0.02);
             border: 1px solid rgba(255,255,255,0.04);
             border-radius: 8px;
-            padding: 16px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-        }
-
-        .diner-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .diner-name {
-            font-size: 14px;
-            font-weight: 600;
+            gap: 16px;
         }
 
         .progress-container {
             background-color: rgba(255,255,255,0.1);
-            height: 10px;
-            border-radius: 5px;
+            height: 12px;
+            border-radius: 6px;
             overflow: hidden;
         }
 
@@ -306,7 +251,7 @@ HTML_CONTENT = """<!DOCTYPE html>
             background: linear-gradient(90deg, #10B981, #F59E0B);
             width: 0%;
             height: 100%;
-            border-radius: 5px;
+            border-radius: 6px;
             transition: width 0.3s;
         }
 
@@ -314,25 +259,39 @@ HTML_CONTENT = """<!DOCTYPE html>
             background: linear-gradient(90deg, #F59E0B, #EF4444);
         }
 
-        .caretaker-tip-box {
-            background-color: rgba(245, 158, 11, 0.08);
-            border: 1px solid rgba(245, 158, 11, 0.25);
-            border-radius: 6px;
-            padding: 12px;
-            display: none;
+        .caretaker-tip-card {
+            background-color: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
             flex-direction: column;
-            gap: 8px;
-            font-size: 12px;
+            gap: 10px;
+            font-size: 13px;
         }
 
         .caretaker-title {
-            color: #F59E0B;
+            color: #10B981;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .caretaker-desc {
-            color: rgba(255,255,255,0.85);
+            color: rgba(255,255,255,0.9);
             line-height: 1.4;
+        }
+
+        .caretaker-rec-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn-order {
@@ -346,12 +305,11 @@ HTML_CONTENT = """<!DOCTYPE html>
             cursor: pointer;
             width: 100%;
             text-align: center;
+            transition: all 0.15s;
         }
 
-        .btn-order:disabled {
-            background-color: rgba(255,255,255,0.08);
-            color: rgba(255,255,255,0.25);
-            cursor: not-allowed;
+        .btn-order:hover {
+            background-color: #e06c11;
         }
 
         .terminal-panel {
@@ -361,7 +319,7 @@ HTML_CONTENT = """<!DOCTYPE html>
             font-family: monospace;
             font-size: 11px;
             color: #00FF66;
-            max-height: 120px;
+            max-height: 130px;
             overflow-y: auto;
             border: 1px solid rgba(255,255,255,0.04);
             display: flex;
@@ -388,9 +346,9 @@ HTML_CONTENT = """<!DOCTYPE html>
         .comparison-badge {
             background-color: rgba(16, 185, 129, 0.1);
             color: #10B981;
-            padding: 4px 8px;
+            padding: 6px 12px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             width: fit-content;
         }
@@ -398,14 +356,6 @@ HTML_CONTENT = """<!DOCTYPE html>
         .comparison-badge.warn {
             background-color: rgba(239, 68, 68, 0.1);
             color: #EF4444;
-        }
-
-        .suggestion-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 13px;
-            color: var(--text-muted);
         }
 
         .btn-scan {
@@ -425,177 +375,131 @@ HTML_CONTENT = """<!DOCTYPE html>
 
 <header>
     <div class="logo-section">
-        <span class="logo-swiggy">OrderTogether</span>
-        <span class="logo-dieto">Dieto Caretaker</span>
+        <span class="logo-swiggy">Swiggy</span>
+        <span class="logo-dieto">Dieto Caretaker AI</span>
     </div>
     <div class="address-badge">
-        📍 <strong>Diner Group Address</strong> - Indiranagar, Bangalore
+        📍 <strong>Delivery Address</strong> - Indiranagar, Bangalore
     </div>
 </header>
 
 <div class="container">
-    <!-- Left Column: Setup and Menu MATCH -->
+    <!-- Left Column: Setup & Menu -->
     <div class="panel-left">
-        <!-- Diner profiles setup -->
+        <!-- Diner setup & history preferences -->
         <div class="card-setup">
-            <h3 style="font-size: 16px; font-weight: 600;">Diner Preference Setup</h3>
+            <h3 style="font-size: 16px; font-weight: 600;">Diner Profile & Dietary Preferences</h3>
             <div class="setup-row">
                 <div class="setup-field">
-                    <span class="setup-label">Diner 1 Name</span>
-                    <input type="text" id="diner1Name" class="setup-input" value="Bipin">
+                    <span class="setup-label">User Profile Name</span>
+                    <input type="text" id="userNameInput" class="setup-input" value="Bipin" oninput="updateTrackers()">
                 </div>
                 <div class="setup-field">
-                    <span class="setup-label">Diner 1 Dish Preference</span>
-                    <input type="text" id="diner1Pref" class="setup-input" value="shawarma">
+                    <span class="setup-label">Dietary Target Mode</span>
+                    <select id="dietTargetMode" onchange="updateTrackers()" class="setup-input" style="padding: 9px 12px; background: white; cursor: pointer;">
+                        <option value="strict">Strict Mode (1,600 kcal limit)</option>
+                        <option value="balanced" selected>Balanced Mode (2,000 kcal limit)</option>
+                        <option value="relaxed">Relaxed Mode (2,800 kcal limit)</option>
+                    </select>
                 </div>
             </div>
-            <div class="setup-row">
-                <div class="setup-field">
-                    <span class="setup-label">Diner 2 Name</span>
-                    <input type="text" id="diner2Name" class="setup-input" value="Sahan">
+            
+            <div class="setup-field" style="margin-top: 6px;">
+                <span class="setup-label">Dietary History & Allergy Preferences</span>
+                <div class="preferences-checklist">
+                    <label class="pref-checkbox-label">
+                        <input type="checkbox" id="chkNoSugar" onchange="updateTrackers()" checked> 🚫 No Added Sugar
+                    </label>
+                    <label class="pref-checkbox-label">
+                        <input type="checkbox" id="chkNoGarlic" onchange="updateTrackers()"> 🧄 No Garlic / Onion
+                    </label>
+                    <label class="pref-checkbox-label">
+                        <input type="checkbox" id="chkGlutenFree" onchange="updateTrackers()"> 🌾 Gluten-Free
+                    </label>
                 </div>
-                <div class="setup-field">
-                    <span class="setup-label">Diner 2 Dish Preference</span>
-                    <input type="text" id="diner2Pref" class="setup-input" value="dal tadka">
-                </div>
-            </div>
-            <button class="btn-match" onclick="findMatchedRestaurants()">Find Joint Restaurants on Swiggy</button>
-        </div>
-
-        <!-- Matched restaurants row list -->
-        <div class="matched-restaurants" id="matchedRestaurantsSection">
-            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">Matched Restaurants (Intersections)</h3>
-            <div class="restaurant-row" id="restJunctionRow" onclick="selectRestaurant('rest_junction')">
-                <div class="restaurant-details">
-                    <span class="restaurant-name">Indian Spice Junction</span>
-                    <div class="restaurant-meta">
-                        <span>⭐ 4.6</span>
-                        <span>🕒 30 mins</span>
-                        <span style="color: #60B246;">Fits: shawarma, dal tadka, wraps</span>
-                    </div>
-                </div>
-                <span style="font-size: 12px; font-weight: 600; color: var(--primary);">SELECT RESTAURANT</span>
             </div>
         </div>
 
-        <!-- Selected Restaurant Menu Grid -->
-        <div class="menu-section" id="menuSection">
-            <h3 id="selectedRestHeader" style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">Menu</h3>
+        <!-- Menu Section -->
+        <div class="menu-section">
+            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">Swiggy Food Menu</h3>
             <div class="menu-grid" id="menuGrid">
-                <!-- menu items injected here -->
+                <!-- Menu cards dynamically loaded -->
             </div>
         </div>
 
-        <!-- Post Order verification section -->
+        <!-- Post Order Plate Verification Scanner -->
         <div class="post-order-panel" id="postOrderPanel">
-            <div class="post-order-title">🍽️ Post-Order Joint Plate Scanner</div>
-            <div id="comparisonBadge" class="comparison-badge">Awaiting delivery scan...</div>
+            <div class="post-order-title">🍽️ Post-Delivery Plate Scanner</div>
+            <div id="comparisonBadge" class="comparison-badge">Awaiting delivery...</div>
             <p style="font-size: 13px; color: var(--text-muted);">
-                Take a photograph of your delivered plates. Dieto compares original order calories vs portion sizes to trigger coach suggestions:
+                When your delivery arrives, take a quick photo. Dieto verifies portion sizes to ensure you stay aligned comfortably without restrictive limits:
             </p>
-            <div id="plateScanDetails" style="font-size: 13px; line-height: 1.5; color: var(--text-main);"></div>
-            <div class="suggestion-list" id="wellnessAdviceList"></div>
-            <button class="btn-scan" onclick="triggerSimulatedScan()">📷 Scan & Verify Plate Portions</button>
+            <div id="plateScanDetails" style="font-size: 13px; line-height: 1.5; color: var(--text-main); margin: 6px 0;"></div>
+            <div id="plateScanAdvice" style="display:flex; flex-direction:column; gap:8px;"></div>
+            <button class="btn-scan" onclick="triggerSimulatedScan()">📷 Scan Delivery Plate & Verify Portion</button>
         </div>
     </div>
 
-    <!-- Right Column: Dieto Caretaker dashboard -->
+    <!-- Right Column: Dieto Caretaker Advice Panel -->
     <div class="panel-right">
         <div class="dieto-header">
-            <div class="dieto-title">🥗 Dieto Calorimeter</div>
-            <span style="font-size: 12px; color: rgba(255,255,255,0.6);">Joint Dining Mode</span>
+            <div class="dieto-title">🥗 Dieto Caloric Tracker</div>
+            <span style="font-size: 12px; color: rgba(255,255,255,0.6);">Encouraging Health Assistant</span>
         </div>
 
-        <!-- Diner 1 tracker -->
-        <div class="diner-profile-box">
-            <div class="diner-header">
-                <span class="diner-name" id="labelDiner1">Bipin (Diner 1)</span>
-                <select id="modeDiner1" onchange="updateTrackers()" style="background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; font-size: 10px; outline: none; padding: 2px 4px;">
-                    <option value="strict">Strict Mode (1600 kcal)</option>
-                    <option value="balanced" selected>Balanced Mode (2000 kcal)</option>
-                    <option value="relaxed">Relaxed Mode (2800 kcal)</option>
-                </select>
+        <!-- Progress Tracker box -->
+        <div class="profile-tracker-box">
+            <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 600;">
+                <span id="trackerName">Bipin's Daily Intake</span>
+                <span id="trackerTargetVal">1,200 / 2,000 kcal</span>
             </div>
-            <div style="display:flex; justify-content:space-between; font-size: 12px;">
-                <span>Calories Intake</span>
-                <span id="valDiner1">1,420 / 2,000 kcal</span>
-            </div>
+            
             <div class="progress-container">
-                <div class="progress-bar" id="barDiner1"></div>
+                <div class="progress-bar" id="progressBar"></div>
             </div>
-            <!-- Caretaker tips for diner 1 -->
-            <div class="caretaker-tip-box" id="tipDiner1">
-                <div class="caretaker-title">ℹ️ Dieto Caretaker Tip (Bipin)</div>
-                <div class="caretaker-desc" id="descDiner1">
-                    Your dish choice puts you above your daily budget. Don't worry! We suggest:
-                </div>
-                <label class="checkbox-container" style="margin-top: 6px;">
-                    <input type="checkbox" id="swapDiner1" onchange="applySwapDiner1()">
-                    🔄 Neutralize: Swap Shawarma for Wheat Wrap (-130 kcal)
-                </label>
+            
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.7);">
+                <span id="remainingVal">Remaining Budget: 800 kcal</span>
+                <span id="modeLabel">Balanced Mode</span>
             </div>
         </div>
 
-        <!-- Diner 2 tracker -->
-        <div class="diner-profile-box">
-            <div class="diner-header">
-                <span class="diner-name" id="labelDiner2">Sahan (Diner 2)</span>
-                <select id="modeDiner2" onchange="updateTrackers()" style="background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; font-size: 10px; outline: none; padding: 2px 4px;">
-                    <option value="strict">Strict Mode (1600 kcal)</option>
-                    <option value="balanced" selected>Balanced Mode (2000 kcal)</option>
-                    <option value="relaxed">Relaxed Mode (2800 kcal)</option>
-                </select>
+        <!-- Positive Caretaker Tips Card -->
+        <div class="caretaker-tip-card">
+            <div class="caretaker-title">🌟 Dieto Caretaker Tip</div>
+            <div class="caretaker-desc" id="caretakerHeaderDesc">
+                Food is joy and fuel! We encourage you to enjoy your meal. Here are encouraging wellness tips based on your menu selection and profile preferences:
             </div>
-            <div style="display:flex; justify-content:space-between; font-size: 12px;">
-                <span>Calories Intake</span>
-                <span id="valDiner2">1,580 / 2,000 kcal</span>
-            </div>
-            <div class="progress-container">
-                <div class="progress-bar" id="barDiner2"></div>
-            </div>
-            <!-- Caretaker tips for diner 2 -->
-            <div class="caretaker-tip-box" id="tipDiner2">
-                <div class="caretaker-title">ℹ️ Dieto Caretaker Tip (Sahan)</div>
-                <div class="caretaker-desc" id="descDiner2">
-                    Your dish choice puts you above your daily budget. Don't worry! We suggest:
-                </div>
-                <label class="checkbox-container" style="margin-top: 6px;">
-                    <input type="checkbox" id="swapDiner2" onchange="applySwapDiner2()">
-                    🔄 Neutralize: Swap Dal Tadka for Tandoori Salad (-100 kcal)
-                </label>
+            <div id="caretakerTipsList" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- dynamic tips list loaded here -->
             </div>
         </div>
 
-        <!-- Joint checkout order button -->
-        <button class="btn-order" id="btnPlaceOrder" disabled onclick="checkoutJointOrder()">Place Group Swiggy Order (0 kcal)</button>
+        <!-- Checkout Button -->
+        <button class="btn-order" id="btnPlaceOrder" onclick="checkoutOrder()">Place Swiggy Order (0 kcal)</button>
 
-        <!-- MCP log panel -->
+        <!-- Console MCP JSON-RPC Output -->
         <div class="terminal-panel" id="mcpTerminal">
-            [MCP System] Ready to match diner preferences.
+            [MCP System] Ready. Select menu items to analyze.
         </div>
     </div>
 </div>
 
 <script>
-    // Initial states
-    let baseDiner1 = 1420;
-    let baseDiner2 = 1580;
-    
-    let targetDiner1 = 2000;
-    let targetDiner2 = 2000;
-
-    let cartDiner1 = null;
-    let cartDiner2 = null;
-    
+    // App States
+    let baseCalories = 1200;
+    let targetCalories = 2000;
+    let selectedItem = null;
     let orderPlacedId = "";
 
     const MENU_ITEMS = [
-        { name: "Shawarma", calories: 550, protein: 24, price: 180 },
-        { name: "Dal Tadka", calories: 450, protein: 18, price: 150 },
-        { name: "Chicken Tikka Wrap", calories: 480, protein: 32, price: 190 },
-        { name: "Paneer Rice Bowl", calories: 560, protein: 20, price: 210 },
-        { name: "Lime Soda", calories: 120, protein: 0, price: 60 },
-        { name: "Mint Juice", calories: 45, protein: 1, price: 80 }
+        { name: "Chicken Tikka Wrap", calories: 480, price: 180 },
+        { name: "Paneer Rice Bowl", calories: 560, price: 210 },
+        { name: "Double Cheese Burger", calories: 680, price: 240 },
+        { name: "Tandoori Chicken Salad", calories: 350, price: 220 },
+        { name: "Lime Soda", calories: 120, price: 60 },
+        { name: "Mint Juice", calories: 45, price: 80 }
     ];
 
     function logTerminal(msg) {
@@ -605,28 +509,10 @@ HTML_CONTENT = """<!DOCTYPE html>
         console.scrollTop = console.scrollHeight;
     }
 
-    function findMatchedRestaurants() {
-        const pref1 = document.getElementById('diner1Pref').value;
-        const pref2 = document.getElementById('diner2Pref').value;
-        
-        logTerminal(`[MCP] Call: search_restaurants("query":"${pref1}") -> Intersecting...`);
-        logTerminal(`[MCP] Call: search_restaurants("query":"${pref2}") -> Intersecting...`);
-
-        setTimeout(() => {
-            document.getElementById('matchedRestaurantsSection').style.display = 'flex';
-            logTerminal(`[MCP] Matched 1 restaurant serving both: "Indian Spice Junction"`);
-        }, 600);
-    }
-
-    function selectRestaurant(id) {
-        document.getElementById('restJunctionRow').className = "restaurant-row selected";
-        document.getElementById('menuSection').style.display = 'flex';
-        
+    // Load Menu
+    function loadMenu() {
         const grid = document.getElementById('menuGrid');
         grid.innerHTML = '';
-        
-        logTerminal(`[MCP] Call: get_restaurant_menu("restaurantId":"${id}") -> Loaded 6 items`);
-
         MENU_ITEMS.forEach(item => {
             const card = document.createElement('div');
             card.className = 'menu-card';
@@ -635,115 +521,102 @@ HTML_CONTENT = """<!DOCTYPE html>
                     <div class="menu-name">${item.name}</div>
                     <div class="menu-meta">₹${item.price} | 🔥 ${item.calories} kcal</div>
                 </div>
-                <div style="display:flex; flex-direction:column; gap:6px;">
-                    <button class="btn-add-item" onclick="addItemToDiner1('${item.name}', ${item.calories})">+ Diner 1</button>
-                    <button class="btn-add-item" onclick="addItemToDiner2('${item.name}', ${item.calories})">+ Diner 2</button>
-                </div>
+                <button class="btn-add-item" onclick="addItem('${item.name}', ${item.calories})">+ ADD</button>
             `;
             grid.appendChild(card);
         });
     }
 
-    function addItemToDiner1(name, calories) {
-        cartDiner1 = { name, calories };
-        logTerminal(`[MCP] Diner 1 added: update_food_cart("${name}")`);
-        updateTrackers();
-    }
-
-    function addItemToDiner2(name, calories) {
-        cartDiner2 = { name, calories };
-        logTerminal(`[MCP] Diner 2 added: update_food_cart("${name}")`);
+    function addItem(name, calories) {
+        selectedItem = { name, calories };
+        logTerminal(`[MCP] Call: update_food_cart("add":"${name}") -> Synced`);
         updateTrackers();
     }
 
     function updateTrackers() {
-        const mode1 = document.getElementById('modeDiner1').value;
-        const mode2 = document.getElementById('modeDiner2').value;
+        const name = document.getElementById('userNameInput').value || 'User';
+        const mode = document.getElementById('dietTargetMode').value;
         
-        // Mode thresholds
-        targetDiner1 = mode1 === 'strict' ? 1600 : (mode1 === 'balanced' ? 2000 : 2800);
-        targetDiner2 = mode2 === 'strict' ? 1600 : (mode2 === 'balanced' ? 2000 : 2800);
+        // Mode Thresholds
+        targetCalories = mode === 'strict' ? 1600 : (mode === 'balanced' ? 2000 : 2800);
+        
+        document.getElementById('trackerName').innerText = `${name}'s Daily Intake`;
+        document.getElementById('modeLabel').innerText = mode.charAt(0).toUpperCase() + mode.slice(1) + " Mode";
 
-        document.getElementById('labelDiner1').innerText = `${document.getElementById('diner1Name').value} (Diner 1)`;
-        document.getElementById('labelDiner2').innerText = `${document.getElementById('diner2Name').value} (Diner 2)`;
+        const addedCalories = selectedItem ? selectedItem.calories : 0;
+        const totalProjected = baseCalories + addedCalories;
 
-        // Calculate diner 1 projected
-        let add1 = cartDiner1 ? cartDiner1.calories : 0;
-        if (document.getElementById('swapDiner1').checked && document.getElementById('tipDiner1').style.display === 'flex') {
-            add1 = 420; // Swapped to Wrap
-        }
-        const proj1 = baseDiner1 + add1;
-        const bar1 = document.getElementById('barDiner1');
-        const val1 = document.getElementById('valDiner1');
-        
-        bar1.style.width = `${Math.min(100, (proj1 / targetDiner1) * 100)}%`;
-        val1.innerText = `${proj1} / ${targetDiner1} kcal`;
-        
-        if (proj1 > targetDiner1) {
-            bar1.classList.add('excessive');
-            document.getElementById('tipDiner1').style.display = 'flex';
-            document.getElementById('descDiner1').innerText = `Your choice (${cartDiner1.name}) exceeds your daily mode budget. Rather than stopping your order, we suggest neutralising:`;
+        const bar = document.getElementById('progressBar');
+        const percent = Math.min(100, (totalProjected / targetCalories) * 100);
+        bar.style.width = `${percent}%`;
+
+        if (totalProjected > targetCalories) {
+            bar.classList.add('excessive');
         } else {
-            bar1.classList.remove('excessive');
-            document.getElementById('tipDiner1').style.display = 'none';
+            bar.classList.remove('excessive');
         }
 
-        // Calculate diner 2 projected
-        let add2 = cartDiner2 ? cartDiner2.calories : 0;
-        if (document.getElementById('swapDiner2').checked && document.getElementById('tipDiner2').style.display === 'flex') {
-            add2 = 350; // Swapped to Salad
+        document.getElementById('trackerTargetVal').innerText = `${totalProjected} / ${targetCalories} kcal`;
+        const remaining = targetCalories - totalProjected;
+        document.getElementById('remainingVal').innerText = remaining >= 0 ? `Remaining Budget: ${remaining} kcal` : `Over Budget by: ${Math.abs(remaining)} kcal`;
+
+        // Update checkout button text
+        const btn = document.getElementById('btnPlaceOrder');
+        btn.innerText = `Place Swiggy Order (${addedCalories} kcal)`;
+
+        // Fetch dynamic recovery advisor tips from backend API
+        const noSugar = document.getElementById('chkNoSugar').checked;
+        const noGarlic = document.getElementById('chkNoGarlic').checked;
+        const glutenFree = document.getElementById('chkGlutenFree').checked;
+
+        const excess = totalProjected > targetCalories ? (totalProjected - targetCalories) : 0;
+
+        fetch('/recovery', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                excess_calories: excess,
+                no_sugar: noSugar,
+                no_garlic: noGarlic,
+                gluten_free: glutenFree
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            const listDiv = document.getElementById('caretakerTipsList');
+            listDiv.innerHTML = '';
+            
+            data.recommendations.forEach(rec => {
+                const div = document.createElement('div');
+                div.className = 'caretaker-rec-item';
+                div.innerText = rec;
+                listDiv.appendChild(div);
+            });
+        });
+    }
+
+    function checkoutOrder() {
+        if (!selectedItem) {
+            logTerminal("[SYSTEM] Cart is empty. Add a dish from the Swiggy Menu.");
+            return;
         }
-        const proj2 = baseDiner2 + add2;
-        const bar2 = document.getElementById('barDiner2');
-        const val2 = document.getElementById('valDiner2');
-
-        bar2.style.width = `${Math.min(100, (proj2 / targetDiner2) * 100)}%`;
-        val2.innerText = `${proj2} / ${targetDiner2} kcal`;
-
-        if (proj2 > targetDiner2) {
-            bar2.classList.add('excessive');
-            document.getElementById('tipDiner2').style.display = 'flex';
-            document.getElementById('descDiner2').innerText = `Your choice (${cartDiner2.name}) exceeds your daily mode budget. Rather than stopping your order, we suggest neutralising:`;
-        } else {
-            bar2.classList.remove('excessive');
-            document.getElementById('tipDiner2').style.display = 'none';
-        }
-
-        // Enable button
-        const btnOrder = document.getElementById('btnPlaceOrder');
-        btnOrder.disabled = !cartDiner1 && !cartDiner2;
-        const finalSumCal = add1 + add2;
-        btnOrder.innerText = `Place Group Swiggy Order (${finalSumCal} kcal)`;
-    }
-
-    function applySwapDiner1() {
-        updateTrackers();
-    }
-
-    function applySwapDiner2() {
-        updateTrackers();
-    }
-
-    function checkoutJointOrder() {
+        logTerminal("[MCP] Launching Swiggy Food MCP checkout flow...");
         document.getElementById('btnPlaceOrder').disabled = true;
-        logTerminal("[MCP] Initializing Swiggy MCP checkout tools...");
 
         setTimeout(() => {
             logTerminal("[MCP] Call: get_addresses() -> Completed (200 OK)");
-            logTerminal("[MCP] Address resolved: Home (ID: addr_01HXYZ)");
-
+            
             setTimeout(() => {
                 logTerminal("[MCP] Call: update_food_cart() -> Completed (200 OK)");
-
+                
                 setTimeout(() => {
                     logTerminal("[MCP] Call: place_food_order() -> Completed (200 OK)");
-                    
                     const orderId = "ord_swiggy_7711";
                     orderPlacedId = orderId;
-                    logTerminal(`[MCP] Success! Order placed. ID: ${orderId}`);
+                    logTerminal(`[MCP] Success! Order completed. Order ID: ${orderId}`);
                     logTerminal("[SYSTEM] Swiggy Order Completed successfully!");
 
-                    // POST call to fastapi sync-order
+                    // Sync base calories with FastAPI
                     fetch('/sync-order', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -751,11 +624,13 @@ HTML_CONTENT = """<!DOCTYPE html>
                     })
                     .then(r => r.json())
                     .then(data => {
-                        logTerminal(`[SYSTEM] Synced Dieto group logs successfully.`);
+                        baseCalories += selectedItem.calories;
+                        selectedItem = null;
+                        updateTrackers();
                         
-                        // Show plate scanner
+                        // Show Plate verification scanner panel
                         document.getElementById('postOrderPanel').style.display = 'flex';
-                        document.getElementById('comparisonBadge').innerText = "Awaiting delivery scan... 🍕";
+                        document.getElementById('comparisonBadge').innerText = "Delivery on the way... 🛵";
                     });
                 }, 800);
             }, 600);
@@ -764,38 +639,52 @@ HTML_CONTENT = """<!DOCTYPE html>
 
     function triggerSimulatedScan() {
         if (!orderPlacedId) return;
-        document.getElementById('comparisonBadge').innerText = "📷 Scanning camera feed... Detecting items...";
-        
+        document.getElementById('comparisonBadge').innerText = "📷 Scanning plate portions...";
+
+        const noSugar = document.getElementById('chkNoSugar').checked;
+        const noGarlic = document.getElementById('chkNoGarlic').checked;
+        const glutenFree = document.getElementById('chkGlutenFree').checked;
+
         setTimeout(() => {
             fetch('/compare-plate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     order_id: orderPlacedId,
-                    detected_items: ["Chicken Biryani", "Chicken 65", "Raita"]
+                    detected_items: ["Chicken Biryani", "Chicken 65", "Raita"],
+                    no_sugar: noSugar,
+                    no_garlic: noGarlic,
+                    gluten_free: glutenFree
                 })
             })
             .then(r => r.json())
             .then(data => {
                 const badge = document.getElementById('comparisonBadge');
-                badge.innerText = "Divergence found: +280 kcal";
-                badge.className = "comparison-badge warn";
+                badge.innerText = data.calorie_difference > 0 ? "Portion Divergence Scanned (+280 kcal)" : "Intake Budget Met!";
+                badge.className = data.calorie_difference > 0 ? "comparison-badge warn" : "comparison-badge";
 
                 const details = document.getElementById('plateScanDetails');
-                details.innerHTML = `<strong>Diner Group Order Est</strong>: 1000 kcal<br>` +
-                                    `<strong>Scanned Plate Actual Est</strong>: 1280 kcal<br>` +
-                                    `<strong>Portion Difference</strong>: +280 kcal`;
+                details.innerHTML = `<strong>Swiggy Est</strong>: 1000 kcal<br>` +
+                                    `<strong>Plate Scanned Est</strong>: 1280 kcal<br>` +
+                                    `<strong>Divergence</strong>: +280 kcal`;
 
-                const adviceList = document.getElementById('wellnessAdviceList');
-                adviceList.innerHTML = '<strong>Dieto AI Caretaker Aftereffects Suggestions</strong>:';
+                const adviceDiv = document.getElementById('plateScanAdvice');
+                adviceDiv.innerHTML = '<strong>Caretaker Guidelines</strong>:';
                 data.coach_advice.recommendations.forEach(rec => {
                     const div = document.createElement('div');
-                    div.style.margin = '4px 0';
+                    div.className = 'caretaker-rec-item';
+                    div.style.background = 'rgba(0, 0, 0, 0.03)';
                     div.innerText = rec;
-                    adviceList.appendChild(div);
+                    adviceDiv.appendChild(div);
                 });
             });
         }, 1200);
+    }
+
+    // Init onload
+    window.onload = () => {
+        loadMenu();
+        updateTrackers();
     }
 </script>
 

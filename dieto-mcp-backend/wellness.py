@@ -1,38 +1,37 @@
-def get_recovery_advice(excess_calories: int) -> dict:
+def get_recovery_advice(excess_calories: int, no_sugar: bool = False, no_garlic: bool = False, gluten_free: bool = False) -> dict:
     """
-    Returns non-judgmental wellness and recovery suggestions when daily calorie limits are exceeded.
-    Supports gentle movement, walks, sleep, and hydration rather than aggressive compensation.
+    Returns positive, encouraging caretaker suggestions.
+    Food is joy! Never restrict or block orders, keep suggestions positive.
     """
-    if excess_calories <= 0:
-        return {
-            "title": "Healthy Boundaries Maintained! 🎉",
-            "message": "You are within your target diet limits. Enjoy your meal!",
-            "recommendations": [
-                "💧 Continue normal hydration",
-                "😴 Maintain standard rest patterns"
-            ]
-        }
+    recommendations = []
 
-    suggestions = [
-        "💧 Hydrate with plain water or warm lemon-mint infusion to assist metabolism.",
-        "😴 Focus on getting a sound 7-8 hours of sleep tonight to regulate hunger hormones.",
-        "🥗 Plan a lighter next meal (such as vegetable clear soup or raw greens) to offset naturally."
-    ]
+    # Apply preference-specific caretaker tips
+    if no_sugar:
+        recommendations.append("🍬 Unsweetened Choice: Swap added sugar items for fresh stevia mint juice or black coffee.")
+    if no_garlic:
+        recommendations.append("🧅 Sattvik Diet: Choose dishes made without garlic/onion, or instruct kitchen to omit them.")
+    if gluten_free:
+        recommendations.append("🌾 Gluten-free alternative: Opt for brown rice or millet flatbreads instead of standard wheat flour.")
 
-    if excess_calories < 150:
-        message = f"You are slightly above your calorie budget (+{excess_calories} kcal). Keep a normal routine!"
-        suggestions.insert(0, "🚶 Take a 10-minute stroll to aid digestion.")
-    elif excess_calories <= 300:
-        message = f"You're currently {excess_calories} kcal over today's target. Let's make gentle choices for the next meal."
-        suggestions.insert(0, "🚶 Try an easy 15-20 minute post-meal walk in the evening.")
-        suggestions.append("🧘 Optional light activity: 3 × 10 jumping jacks or gentle stretching, if comfortable.")
+    # General digestion/metabolic support recommendations
+    recommendations.append("💧 Hydration: Drink warm lemon water or mint tea to aid comfortable digestion.")
+    recommendations.append("😴 Metabolic Rest: Ensure a quality 7-8 hours of sleep tonight to regulate hormones naturally.")
+
+    # Exercise suggestions based on excess calories
+    if excess_calories > 0:
+        if excess_calories < 150:
+            recommendations.append("🚶 Stroll: Try a gentle 10-minute walk after your meal to help with initial digestion.")
+        elif excess_calories <= 300:
+            recommendations.append("🚶 Walk: A pleasant 15-20 minute post-meal evening walk is a great way to stay light.")
+            recommendations.append("🏃 Movement: 3 sets of 10 light jumping jacks to keep active, if you feel comfortable.")
+        else:
+            recommendations.append("🚶 Walk: A gentle 25-30 minute active walk helps keep energy balanced.")
+            recommendations.append("🏃 Movement: 3 sets of 12 light jumping jacks to stay refreshed.")
     else:
-        message = f"You're {excess_calories} kcal above today's goal. Focus on simple caretakers habits."
-        suggestions.insert(0, "🚶 Take a 25-30 minute light walk to stay active.")
-        suggestions.append("🧘 Optional light activity: 3 × 12 jumping jacks or minor stretching routines, if comfortable.")
+        recommendations.append("⭐ Goal Match: You are perfectly aligned with your selected calorie threshold!")
 
     return {
-        "title": "Flexible Meal Caretaker Plan 🎉",
-        "message": message,
-        "recommendations": suggestions
+        "title": "Dieto Positive Caretaker Tips 🌟",
+        "message": f"Food is joy and energy! You are fully supported to order whatever you like. Here are gentle, healthy tips based on your profile:",
+        "recommendations": recommendations
     }

@@ -25,9 +25,15 @@ class SyncOrderRequest(BaseModel):
 class ComparePlateRequest(BaseModel):
     order_id: str
     detected_items: List[str]
+    no_sugar: Optional[bool] = False
+    no_garlic: Optional[bool] = False
+    gluten_free: Optional[bool] = False
 
 class RecoveryRequest(BaseModel):
     excess_calories: int
+    no_sugar: Optional[bool] = False
+    no_garlic: Optional[bool] = False
+    gluten_free: Optional[bool] = False
 
 # ----------------- Mock Swiggy Orders -----------------
 MOCK_SWIGGY_ORDERS = {
@@ -110,7 +116,12 @@ async def compare_plate(req: ComparePlateRequest):
     elif diff < 0:
         message = f"You ate lighter by -{abs(diff)} kcal!"
         
-    coach_advice = wellness.get_recovery_advice(diff if diff > 0 else 0)
+    coach_advice = wellness.get_recovery_advice(
+        diff if diff > 0 else 0,
+        no_sugar=req.no_sugar,
+        no_garlic=req.no_garlic,
+        gluten_free=req.gluten_free
+    )
     
     return {
         "order_id": req.order_id,
@@ -126,7 +137,12 @@ async def get_recovery(req: RecoveryRequest):
     """
     Exposes recovery coach.
     """
-    return wellness.get_recovery_advice(req.excess_calories)
+    return wellness.get_recovery_advice(
+        req.excess_calories,
+        no_sugar=req.no_sugar,
+        no_garlic=req.no_garlic,
+        gluten_free=req.gluten_free
+    )
 
 if __name__ == "__main__":
     import uvicorn
