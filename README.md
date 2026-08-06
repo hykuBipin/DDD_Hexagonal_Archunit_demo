@@ -1,50 +1,72 @@
-# OrderTogether
+# AI-Dieto-Updated
 
-Finds restaurants on Swiggy that satisfy **multiple people's dish preferences at once**
-(e.g. person 1 wants shawarma, person 2 wants dal tadka → restaurants serving both).
+**AI-Dieto-Updated** is a health-conscious group food ordering companion powered by the **Swiggy MCP Food Server** (`mcp.swiggy.com/food`). It helps groups of diners find shared restaurant options, estimate calorie intake, and receive caretaker tips and post-meal recovery suggestions to keep dining flexible and balanced.
 
-MVP is **discovery only**: show matched restaurants and deep-link into the Swiggy app to
-complete the order. No in-app ordering in v1.
+---
 
-## Repo layout
+## 🚀 Key Features
 
-| Directory                  | Stack         | Purpose                                              |
-|----------------------------|---------------|------------------------------------------------------|
-| `order-together-backend/`  | Spring Boot 3 | Calls the Swiggy MCP, intersects & ranks restaurants |
-| `frontend/`                | Flutter       | Android-first UI (to be scaffolded)                  |
+1. **Preference Intersection Matching**:
+   * Takes preferences from multiple diners (e.g. Diner 1 wants "shawarma", Diner 2 wants "dal tadka").
+   * Calls Swiggy MCP `search_restaurants` to find locations that satisfy all dietary preferences in a single order.
 
-## Backend quick start
+2. **Diner Calorie Tracker Dashboard**:
+   * Tracks individual budget targets (Strict: 1,600 kcal, Balanced: 2,000 kcal, Relaxed: 2,800 kcal).
+   * Displays joint progress bars for all diners in the group.
 
+3. **Caretaker Wellness Tips**:
+   * If a diner's chosen dish exceeds their daily budget, the Caretaker engine recommends:
+     * **Neutralizing Menu Swaps**: (e.g., Swap Shawarma for Wheat Wrap to save 130 kcal).
+     * **Detox Boosters**: (e.g., Add Lime Mint Juice).
+     * **Digestion Walks**: (e.g., A 15-20 min light walk post-meal).
+
+4. **MCP Checkout Logs**:
+   * Simulates clean sequential tool outputs on checkout:
+     * `[MCP] Call: get_addresses() -> Completed (200 OK)`
+     * `[MCP] Call: update_food_cart() -> Completed (200 OK)`
+     * `[MCP] Call: place_food_order() -> Completed (200 OK)`
+
+5. **Post-Order Plate Scanner**:
+   * Captures photos of delivered plates, computes portional calorie differences, and outputs recovery advice.
+
+---
+
+## 📂 Repository Layout
+
+| Directory | Stack | Purpose |
+|---|---|---|
+| `dieto-mcp-backend/` | FastAPI, Pydantic, Python | The Calorimeter service, database, and caretaker UI dashboard. |
+| `order-together-backend/` | Spring Boot 3 | Java backend performing live preference matching. |
+| `frontend/` | Flutter | Android/iOS client template for Order Together. |
+
+---
+
+## ⚡ Quick Start
+
+### Start the Dieto Calorimeter Dashboard
+
+1. Navigate to the backend directory:
+   ```bash
+   cd dieto-mcp-backend
+   ```
+2. Activate virtual environment and install dependencies:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
+3. Run the FastAPI application:
+   ```bash
+   python3 main.py
+   ```
+4. Open your browser and navigate to:
+   👉 **`http://localhost:8000/`**
+
+---
+
+## 🧪 Running Verifications
+
+To verify backend endpoints and nutrition mapping:
 ```bash
-cd order-together-backend
-# Optional: provide a dev token instead of forwarding one per request
-export SWIGGY_MCP_TOKEN=<oauth-access-token>
-./mvnw spring-boot:run
+python3 verify.py
 ```
-
-Then:
-
-```bash
-curl -s http://localhost:8080/api/match \
-  -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer <oauth-access-token>' \
-  -d '{"preferences":["shawarma","dal tadka"],"addressId":"d3su1n0nfvanns8h7l4g"}'
-```
-
-See [`order-together-backend/API.md`](order-together-backend/API.md) for the full request/response contract that the
-Flutter client codes against.
-
-## How matching works
-
-1. Fan out one `search_restaurants` MCP call **per preference**, in parallel.
-2. **Intersect** restaurant ids that appear in *every* preference's results.
-3. Drop anything with `availabilityStatus == "CLOSED"`.
-4. **Rank** by `avgRating` (desc), then `deliveryTimeMinutes` (asc).
-
-## Auth
-
-OAuth 2.1 with PKCE against `https://mcp.swiggy.com`. The Flutter client performs the
-auth flow and forwards the bearer token to the backend, which relays it to the MCP server.
-For local dev the backend can fall back to `SWIGGY_MCP_TOKEN`.
-
-Brand colors: orange `#FC8019`, white, dark grey.
