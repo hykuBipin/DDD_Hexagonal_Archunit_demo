@@ -34,6 +34,7 @@ class RecoveryRequest(BaseModel):
     no_sugar: Optional[bool] = False
     no_garlic: Optional[bool] = False
     gluten_free: Optional[bool] = False
+    cart_items: Optional[List[str]] = []
 
 # ----------------- Mock Swiggy Orders -----------------
 MOCK_SWIGGY_ORDERS = {
@@ -120,7 +121,8 @@ async def compare_plate(req: ComparePlateRequest):
         diff if diff > 0 else 0,
         no_sugar=req.no_sugar,
         no_garlic=req.no_garlic,
-        gluten_free=req.gluten_free
+        gluten_free=req.gluten_free,
+        cart_items=req.detected_items
     )
     
     return {
@@ -141,7 +143,8 @@ async def get_recovery(req: RecoveryRequest):
         req.excess_calories,
         no_sugar=req.no_sugar,
         no_garlic=req.no_garlic,
-        gluten_free=req.gluten_free
+        gluten_free=req.gluten_free,
+        cart_items=req.cart_items
     )
 
 if __name__ == "__main__":
