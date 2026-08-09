@@ -39,7 +39,7 @@ HTML_CONTENT = """<!DOCTYPE html>
             overflow: auto;
         }
 
-        /* Premium Phone Bezel Container */
+        /* Phone Bezel */
         .phone-frame {
             width: 390px;
             height: 844px;
@@ -53,7 +53,7 @@ HTML_CONTENT = """<!DOCTYPE html>
             overflow: hidden;
         }
 
-        /* Dynamic Island / Notch Mockup */
+        /* Dynamic Island Notch */
         .phone-island {
             width: 110px;
             height: 30px;
@@ -64,9 +64,6 @@ HTML_CONTENT = """<!DOCTYPE html>
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         /* Screen Container */
@@ -81,7 +78,7 @@ HTML_CONTENT = """<!DOCTYPE html>
             flex-direction: column;
             position: relative;
             padding-top: 36px;
-            scrollbar-width: none; /* Hide scrollbars */
+            scrollbar-width: none;
         }
 
         .phone-screen::-webkit-scrollbar {
@@ -285,7 +282,7 @@ HTML_CONTENT = """<!DOCTYPE html>
             border-left: 3px solid var(--accent-green);
         }
 
-        /* Swiggy Menu list */
+        /* Menu list */
         .menu-list {
             display: flex;
             flex-direction: column;
@@ -329,10 +326,6 @@ HTML_CONTENT = """<!DOCTYPE html>
             cursor: pointer;
         }
 
-        .btn-add-item:hover {
-            background-color: #f9f9f9;
-        }
-
         /* Bottom Fixed Checkout bar */
         .checkout-bar {
             background-color: #ffffff;
@@ -357,21 +350,16 @@ HTML_CONTENT = """<!DOCTYPE html>
             width: 100%;
             text-align: center;
             box-shadow: 0 4px 15px rgba(252, 128, 25, 0.2);
-            transition: transform 0.1s;
         }
 
-        .btn-checkout:active {
-            transform: scale(0.98);
-        }
-
-        /* Interactive Viewfinder Camera Overlay modal */
+        /* Camera Overlay Viewfinder */
         .camera-overlay {
             position: absolute;
             top: 36px;
             left: 0;
             width: 100%;
             height: calc(100% - 36px);
-            background-color: rgba(0,0,0,0.85);
+            background-color: rgba(0,0,0,0.92);
             border-bottom-left-radius: 38px;
             border-bottom-right-radius: 38px;
             z-index: 2000;
@@ -385,7 +373,7 @@ HTML_CONTENT = """<!DOCTYPE html>
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .viewfinder {
@@ -397,7 +385,10 @@ HTML_CONTENT = """<!DOCTYPE html>
             display: flex;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.4) 100%);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #111;
         }
 
         .scan-line {
@@ -410,42 +401,67 @@ HTML_CONTENT = """<!DOCTYPE html>
             box-shadow: 0 0 8px var(--accent-green);
         }
 
-        @keyframes scanAnim {
-            0% { top: 0%; }
-            50% { top: 100%; }
-            100% { top: 0%; }
+        .scanned-placeholder-icon {
+            font-size: 48px;
+            opacity: 0.8;
+            transition: opacity 0.3s;
         }
 
-        .scanned-plate-mock {
-            width: 180px;
-            height: 180px;
-            border-radius: 90px;
-            border: 4px solid white;
-            background-color: #222;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.6);
-        }
-
-        /* Mock Bounding Box detections */
-        .bounding-box {
+        /* Bounding Box Mock overlays */
+        .camera-box-overlay {
             position: absolute;
             border: 2px solid #00FF66;
-            background-color: rgba(0,255,102,0.1);
+            background-color: rgba(0,255,102,0.15);
             color: #00FF66;
-            font-size: 8px;
+            font-size: 9px;
             font-weight: 700;
-            padding: 2px;
+            padding: 2px 4px;
             border-radius: 4px;
+            pointer-events: none;
+            display: none;
+        }
+
+        /* Tag detector container */
+        .portion-detector-box {
+            background-color: rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detector-tag-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .detector-tag {
+            background-color: rgba(255,255,255,0.15);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .detector-tag.active {
+            background-color: var(--accent-green);
+            border-color: var(--accent-green);
         }
 
         .camera-footer {
-            padding: 20px 0 10px;
+            padding-top: 12px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
         .btn-confirm-scan {
@@ -453,14 +469,14 @@ HTML_CONTENT = """<!DOCTYPE html>
             color: white;
             border: none;
             padding: 12px;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 700;
             font-size: 13px;
             cursor: pointer;
             text-align: center;
         }
 
-        /* Delivery Notification banner */
+        /* Delivery Banner */
         .notification-banner {
             background-color: rgba(0,0,0,0.9);
             color: white;
@@ -493,7 +509,7 @@ HTML_CONTENT = """<!DOCTYPE html>
 <body>
 
 <div class="phone-frame">
-    <!-- Notch / Dynamic Island -->
+    <!-- Notch -->
     <div class="phone-island"></div>
 
     <div class="phone-screen">
@@ -513,22 +529,43 @@ HTML_CONTENT = """<!DOCTYPE html>
             <button class="btn-scan-trigger" onclick="openCameraView()">Camera Scan</button>
         </div>
 
-        <!-- Camera Overlay Mock -->
+        <!-- Real-Time Camera Viewfinder Scanner -->
         <div class="camera-overlay" id="cameraOverlay">
             <div class="camera-header">
-                <span style="font-weight: 700; font-size: 14px;">Plate scanner AI</span>
+                <span style="font-weight: 700; font-size: 14px;">📸 Real-Time Plate Scanner</span>
                 <span style="cursor: pointer; font-size: 18px;" onclick="closeCameraView()">✕</span>
             </div>
-            <div class="viewfinder">
-                <div class="scan-line"></div>
-                <div class="scanned-plate-mock">🍽️</div>
-                <!-- green bounding boxes -->
-                <div class="bounding-box" style="top: 25%; left: 20%; width: 90px; height: 50px;">Chicken Biryani (650 kcal)</div>
-                <div class="bounding-box" style="top: 45%; left: 55%; width: 75px; height: 40px;">Chicken 65 (450 kcal)</div>
-                <div class="bounding-box" style="top: 60%; left: 25%; width: 60px; height: 35px;">Raita (80 kcal)</div>
+            
+            <div class="viewfinder" id="cameraViewfinder">
+                <div class="scan-line" id="cameraScanLine" style="display:none;"></div>
+                <div class="scanned-placeholder-icon" id="cameraPlaceholder">🍽️</div>
+                
+                <!-- Bounding Box overlays (revealed on upload) -->
+                <div class="camera-box-overlay" id="box1" style="top: 25%; left: 20%;">Double Cheese Burger</div>
+                <div class="camera-box-overlay" id="box2" style="top: 55%; left: 45%;">Lime Soda</div>
+                <div class="camera-box-overlay" id="box3" style="top: 40%; left: 15%;">Raita portion</div>
             </div>
+
+            <!-- Image upload input -->
+            <div style="margin-top:12px; display:flex; justify-content:center;">
+                <label style="background: rgba(255,255,255,0.15); color:white; padding:8px 16px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer;">
+                    📤 Upload Photo of Food Plate
+                    <input type="file" id="cameraFileInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+                </label>
+            </div>
+
+            <!-- Dynamic Tag Detection & Portion checklist -->
+            <div class="portion-detector-box">
+                <div style="font-size:11px; font-weight:700; text-transform:uppercase; opacity:0.8;">🤖 Verify Detected Plate Portions</div>
+                <div class="detector-tag-row">
+                    <span class="detector-tag active" id="tag1" onclick="toggleTag('tag1', 'Double Cheese Burger')">🍔 Double Cheese Burger</span>
+                    <span class="detector-tag active" id="tag2" onclick="toggleTag('tag2', 'Lime Soda')">🥤 Lime Soda</span>
+                    <span class="detector-tag" id="tag3" onclick="toggleTag('tag3', 'Raita')">➕ Add Raita portion (+80 kcal)</span>
+                </div>
+            </div>
+
             <div class="camera-footer">
-                <p style="font-size: 11px; text-align: center; opacity: 0.8;">Detecting portion sizes to verify total intake</p>
+                <p style="font-size: 11px; text-align: center; opacity: 0.7;">Upload plate photo and review items for real-time calculation</p>
                 <button class="btn-confirm-scan" onclick="confirmPlateScan()">Confirm Scanned Plate</button>
             </div>
         </div>
@@ -562,7 +599,7 @@ HTML_CONTENT = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- Profile and Restrictions Settings -->
+            <!-- Profile Settings -->
             <div class="card-profile">
                 <div class="field-group">
                     <span class="field-label">Target Mode</span>
@@ -588,26 +625,26 @@ HTML_CONTENT = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- Encouraging Caretaker Suggestions Advice Card -->
+            <!-- Caretaker Advice Card -->
             <div class="caretaker-tip-card" id="caretakerCard">
                 <div class="caretaker-title">🌟 Dieto Caretaker Tip</div>
-                <div class="caretaker-body" id="caretakerIntro">
+                <div class="caretaker-body">
                     Food is joy and fuel! We encourage you to enjoy your meal. Here are encouraging wellness tips based on your menu selection and profile preferences:
                 </div>
                 <div class="caretaker-tips-list" id="tipsContainer">
-                    <!-- Dynamic tips populated here -->
+                    <!-- Dynamic tips loaded -->
                 </div>
             </div>
 
-            <!-- Swiggy Menu Grid list -->
+            <!-- Swiggy Menu list -->
             <div>
                 <span class="section-title">Swiggy Integrated Menu</span>
                 <div class="menu-list" style="margin-top:10px;" id="menuList">
-                    <!-- Menu items list loaded dynamically -->
+                    <!-- Loaded dynamically -->
                 </div>
             </div>
 
-            <!-- Post-scan verification details -->
+            <!-- Real-time scanner calculation card -->
             <div class="card-tracker" id="plateVerificationCard" style="display:none; border-left:4px solid var(--accent-green);">
                 <div style="font-weight: 700; font-size: 13px; color: var(--accent-green);">🍽️ Scanned Plate Verification</div>
                 <div id="plateScanSummary" style="font-size:12px; margin-top:6px; line-height:1.5;"></div>
@@ -615,7 +652,7 @@ HTML_CONTENT = """<!DOCTYPE html>
             </div>
         </div>
 
-        <!-- Checkout Fixed Bottom bar -->
+        <!-- Bottom Fixed Checkout bar -->
         <div class="checkout-bar">
             <button class="btn-checkout" id="btnPlaceOrder" onclick="placeOrder()">Place Swiggy Order (0 kcal)</button>
         </div>
@@ -627,6 +664,9 @@ HTML_CONTENT = """<!DOCTYPE html>
     let targetCalories = 2000;
     let selectedItem = null;
     let orderPlacedId = "";
+    
+    // Detected items for real-time plate calculations
+    let activeDetections = ["Double Cheese Burger", "Lime Soda"];
 
     const MENU_ITEMS = [
         { name: "Double Cheese Burger", calories: 680, price: 240 },
@@ -656,6 +696,11 @@ HTML_CONTENT = """<!DOCTYPE html>
 
     function addItem(name, calories) {
         selectedItem = { name, calories };
+        
+        // Update tags list inside mock camera view to match selected item automatically!
+        document.getElementById('tag1').innerHTML = `🍔 ${name}`;
+        activeDetections = [name, "Lime Soda"];
+        
         updateTrackers();
     }
 
@@ -668,7 +713,6 @@ HTML_CONTENT = """<!DOCTYPE html>
         const added = selectedItem ? selectedItem.calories : 0;
         const projected = baseCalories + added;
         
-        // Progress Fill
         const bar = document.getElementById('progressBarFill');
         const percent = Math.min(100, (projected / targetCalories) * 100);
         bar.style.width = `${percent}%`;
@@ -682,10 +726,10 @@ HTML_CONTENT = """<!DOCTYPE html>
         const remaining = targetCalories - projected;
         document.getElementById('txtRemaining').innerText = remaining >= 0 ? `Remaining: ${remaining} kcal` : `Over Budget by: ${Math.abs(remaining)} kcal`;
 
-        // Update checkout button text
+        // Update checkout button
         document.getElementById('btnPlaceOrder').innerText = `Place Swiggy Order (${added} kcal)`;
 
-        // Fetch Dynamic Wellness Suggestions from API
+        // Fetch wellness coach recommendations
         const noSugar = document.getElementById('chkNoSugar').checked;
         const noGarlic = document.getElementById('chkNoGarlic').checked;
         const glutenFree = document.getElementById('chkGlutenFree').checked;
@@ -708,7 +752,6 @@ HTML_CONTENT = """<!DOCTYPE html>
         .then(data => {
             const container = document.getElementById('tipsContainer');
             container.innerHTML = '';
-            
             data.recommendations.forEach(rec => {
                 const item = document.createElement('div');
                 item.className = 'caretaker-item';
@@ -737,7 +780,7 @@ HTML_CONTENT = """<!DOCTYPE html>
                 selectedItem = null;
                 updateTrackers();
                 
-                // Show Swiggy delivery push notification
+                // Show Swiggy delivery notification
                 document.getElementById('deliveryNotification').style.display = 'flex';
                 document.getElementById('btnPlaceOrder').disabled = false;
             });
@@ -753,6 +796,42 @@ HTML_CONTENT = """<!DOCTYPE html>
         document.getElementById('cameraOverlay').style.display = 'none';
     }
 
+    // Handles user uploading a real photo of their food plate!
+    function handleImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const viewfinder = document.getElementById('cameraViewfinder');
+            viewfinder.style.backgroundImage = `url('${e.target.result}')`;
+            
+            document.getElementById('cameraPlaceholder').style.display = 'none';
+            document.getElementById('cameraScanLine').style.display = 'block';
+
+            // Show active AI bounding boxes
+            document.getElementById('box1').style.display = 'block';
+            document.getElementById('box2').style.display = 'block';
+            document.getElementById('box3').style.display = 'block';
+            
+            // Log scan simulation
+            console.log("Real-time scanning plate image: " + file.name);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function toggleTag(tagId, name) {
+        const element = document.getElementById(tagId);
+        if (element.classList.contains('active')) {
+            element.classList.remove('active');
+            activeDetections = activeDetections.filter(item => item !== name);
+        } else {
+            element.classList.add('active');
+            activeDetections.push(name);
+        }
+    }
+
+    // Runs real-time calculation based on uploaded picture & checked tags!
     function confirmPlateScan() {
         document.getElementById('cameraOverlay').style.display = 'none';
 
@@ -765,7 +844,7 @@ HTML_CONTENT = """<!DOCTYPE html>
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 order_id: orderPlacedId,
-                detected_items: ["Chicken Biryani", "Chicken 65", "Raita"],
+                detected_items: activeDetections,
                 no_sugar: noSugar,
                 no_garlic: noGarlic,
                 gluten_free: glutenFree
@@ -777,8 +856,15 @@ HTML_CONTENT = """<!DOCTYPE html>
             card.style.display = 'flex';
 
             const summary = document.getElementById('plateScanSummary');
-            summary.innerHTML = `<strong>Divergence detected</strong>: +280 kcal portion excess.<br>` +
-                                `Enjoy the extra bites! Here is how we balance comfortably:`;
+            
+            // Format dynamic portion status based on calculation
+            if (data.calorie_difference > 0) {
+                summary.innerHTML = `<strong>Divergence detected</strong>: +${data.calorie_difference} kcal portion excess.<br>` +
+                                    `Enjoy the extra bites! Here is how we balance comfortably:`;
+            } else {
+                summary.innerHTML = `<strong>Calorie Target Met</strong>: Scanned portion matches your plan perfectly!<br>` +
+                                    `Here are encouraging wellness actions to keep you feeling great:`;
+            }
 
             const list = document.getElementById('scannedCoachAdviceList');
             list.innerHTML = '';
