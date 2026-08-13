@@ -1,6 +1,9 @@
 package com.example.satellite.application;
 
 import com.example.satellite.domain.*;
+import com.example.satellite.infrastructure.adapters.output.persistence.OracleSatelliteRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -15,9 +18,14 @@ public class SatelliteApplicationService {
 
     private final SatelliteRepository repository;
 
+    @Autowired
+    private Satellite dummySatellite; // DEMO VIOLATION: Field injection via @Autowired is forbidden in the core!
+
     public SatelliteApplicationService(SatelliteRepository repository) {
         this.repository = Objects.requireNonNull(repository, "Repository cannot be null");
     }
+
+    //private OracleSatelliteRepository oracleDb; // VIOLATION: Application layer accessing Output Adapter directly
 
     /**
      * Registers a new satellite.
