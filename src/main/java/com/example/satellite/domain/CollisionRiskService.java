@@ -1,10 +1,13 @@
 package com.example.satellite.domain;
 
+import com.example.satellite.domain.ddd.DomainService;
+
 /**
  * Domain Service to detect collision risks between satellites.
  * In DDD, Domain Services contain business logic that doesn't naturally belong to a single Entity or Value Object,
  * often because it coordinates operations across multiple aggregates.
  */
+@DomainService("Collision Risk Domain Service")
 public class CollisionRiskService {
 
     private static final double MIN_SAFE_ALTITUDE_DIFF_KM = 10.0;

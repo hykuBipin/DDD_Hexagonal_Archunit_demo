@@ -24,31 +24,34 @@ public class Main {
         System.out.println("No domain logic or application services are modified!");
         System.out.println("========================================================================");
 
-        // --- PART 1: DEFAULT JAVA IN-MEMORY STORAGE ---
-        System.out.println("\n>>> SCENARIO 1: RUNNING WITH IN-MEMORY DATABASE ADAPTER <<<");
-        SatelliteRepository inMemoryRepo = new InMemorySatelliteRepository();
-        SatelliteApplicationService inMemoryAppService = new SatelliteApplicationService(inMemoryRepo);
-        
-        // We inject the In-memory repository port implementation
-        SatelliteConsoleAdapter inMemoryAdapter = new SatelliteConsoleAdapter(inMemoryAppService, inMemoryRepo);
-        inMemoryAdapter.runSimulation();
+        // ---------------------------------------------------------------------
+        // STEP 1: CHOOSE DATABASE ADAPTER (TOGGLE COMMENTS FOR MIGRATION DEMO)
+        // ---------------------------------------------------------------------
 
-        // --- PART 2: ORACLE DATABASE STORAGE (THE SWAP) ---
-        System.out.println("\n>>> SCENARIO 2: RUNNING WITH ORACLE DATABASE ADAPTER <<<");
-        System.out.println("[MIGRATION STAGE] Swapping In-Memory Repository with Oracle Repository...");
-        SatelliteRepository oracleRepo = new OracleSatelliteRepository();
-        SatelliteApplicationService oracleAppService = new SatelliteApplicationService(oracleRepo);
-        
-        // We inject the Oracle repository port implementation
-        SatelliteConsoleAdapter oracleAdapter = new SatelliteConsoleAdapter(oracleAppService, oracleRepo);
-        oracleAdapter.runSimulation();
-        
+        // [DATABASE ADAPTER OPTION A] Java In-Memory Database (Default)
+        System.out.println("\n>>> RUNNING WITH IN-MEMORY DATABASE ADAPTER <<<");
+        SatelliteRepository repository = new InMemorySatelliteRepository();
+
+        // [DATABASE ADAPTER OPTION B] Oracle Enterprise SQL Database
+        // (To show Oracle DB demo: Comment Option A and uncomment Option B lines below!)
+        // System.out.println("\n>>> RUNNING WITH ORACLE DATABASE ADAPTER <<<");
+        // SatelliteRepository repository = new OracleSatelliteRepository();
+
+        // ---------------------------------------------------------------------
+        // STEP 2: BOOTSTRAP APPSERVICE (INPUT PORT) WITH CHOSEN ADAPTER
+        // ---------------------------------------------------------------------
+        SatelliteApplicationService appService = new SatelliteApplicationService(repository);
+
+        // ---------------------------------------------------------------------
+        // STEP 3: RUN DRIVING CONSOLE ADAPTER
+        // ---------------------------------------------------------------------
+        SatelliteConsoleAdapter adapter = new SatelliteConsoleAdapter(appService, repository);
+        adapter.runSimulation();
+
         System.out.println("\n========================================================================");
         System.out.println("DEMO SUMMARY:");
-        System.out.println("- Swapped database from In-Memory to Oracle database successfully.");
-        System.out.println("- No changes were made to Satellite.java, SatelliteRepository.java, or");
-        System.out.println("  SatelliteApplicationService.java.");
-        System.out.println("- Domain invariants (like decommissioning validation) were fully preserved.");
+        System.out.println("- Wired to: " + repository.getClass().getSimpleName());
+        System.out.println("- Swapping the database requires zero modifications to Domain core!");
         System.out.println("========================================================================");
     }
 }

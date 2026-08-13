@@ -4,6 +4,8 @@ import com.example.satellite.domain.Satellite;
 import com.example.satellite.domain.SatelliteId;
 import com.example.satellite.domain.SatelliteRepository;
 
+import com.example.satellite.infrastructure.hexagonal.OutputAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Driven Output Adapter for In-Memory / Java Default Storage.
  * Implements the SatelliteRepository output port interface.
  */
+@OutputAdapter("In-Memory Java Collection Output Adapter")
 public class InMemorySatelliteRepository implements SatelliteRepository {
 
     private final Map<SatelliteId, Satellite> storage = new ConcurrentHashMap<>();

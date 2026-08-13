@@ -6,6 +6,8 @@ import com.example.satellite.domain.SatelliteId;
 import com.example.satellite.domain.SatelliteRepository;
 import com.example.satellite.domain.Telemetry;
 
+import com.example.satellite.infrastructure.hexagonal.OutputAdapter;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Implements the SatelliteRepository output port interface.
  * Simulates SQL generation, connection logging, and transactional behavior of an Oracle Database driver.
  */
+@OutputAdapter("Oracle DB Enterprise Output Adapter")
 public class OracleSatelliteRepository implements SatelliteRepository {
 
     private final Map<SatelliteId, Satellite> mockOracleTables = new ConcurrentHashMap<>();

@@ -4,6 +4,8 @@ import com.example.satellite.application.RegisterSatelliteCommand;
 import com.example.satellite.application.SatelliteApplicationService;
 import com.example.satellite.domain.*;
 
+import com.example.satellite.infrastructure.hexagonal.InputAdapter;
+
 import java.util.List;
 
 /**
@@ -11,6 +13,7 @@ import java.util.List;
  * In Hexagonal Architecture, a driving adapter depends ONLY on input ports (application use cases)
  * and the domain layer. It has ZERO dependencies on concrete output adapters (databases)!
  */
+@InputAdapter("Console CLI Driving Input Adapter")
 public class SatelliteConsoleAdapter {
 
     private final SatelliteApplicationService appUseCase;

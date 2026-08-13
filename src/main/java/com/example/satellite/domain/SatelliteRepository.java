@@ -1,5 +1,7 @@
 package com.example.satellite.domain;
 
+import com.example.satellite.domain.ddd.RepositoryPort;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -8,6 +10,7 @@ import java.util.Optional;
  * In DDD, the repository interface belongs to the Domain Layer. 
  * This keeps the Domain Layer independent of storage/database technologies (Infrastructure).
  */
+@RepositoryPort("Satellite Persistence Output Port Interface")
 public interface SatelliteRepository {
     
     /**

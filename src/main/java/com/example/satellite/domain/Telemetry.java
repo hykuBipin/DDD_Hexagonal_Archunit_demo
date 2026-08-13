@@ -1,5 +1,7 @@
 package com.example.satellite.domain;
 
+import com.example.satellite.domain.ddd.ValueObject;
+
 import java.time.Instant;
 import java.util.Objects;
 
@@ -7,6 +9,7 @@ import java.util.Objects;
  * Value Object representing the telemetry reading of a satellite at a specific point in time.
  * Value Objects are immutable. Any modification results in a new instance.
  */
+@ValueObject("Telemetry Reading Value Object")
 public record Telemetry(
         double latitude,
         double longitude,

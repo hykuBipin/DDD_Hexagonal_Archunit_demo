@@ -1,9 +1,12 @@
 package com.example.satellite.domain;
 
+import com.example.satellite.domain.ddd.ValueObject;
+
 /**
  * Value Object representing the orbital parameters of a satellite.
  * In DDD, Value Objects enforce their own invariants upon creation.
  */
+@ValueObject("Orbit Parameter Value Object")
 public record Orbit(double altitudeKm, double inclinationDegrees, double periodMinutes) {
     
     public Orbit {

@@ -1,5 +1,7 @@
 package com.example.satellite.domain;
 
+import com.example.satellite.domain.ddd.AggregateRoot;
+
 import java.util.Objects;
 
 /**
@@ -7,6 +9,7 @@ import java.util.Objects;
  * In DDD, the Aggregate Root ensures consistency within its boundary. All mutations 
  * to its state must go through methods on this class to satisfy domain rules (invariants).
  */
+@AggregateRoot("Satellite Aggregate Root")
 public class Satellite {
     private final SatelliteId id;
     private final String name;

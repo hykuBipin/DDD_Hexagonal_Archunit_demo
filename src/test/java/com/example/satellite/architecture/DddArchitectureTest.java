@@ -1,5 +1,9 @@
 package com.example.satellite.architecture;
 
+import com.example.satellite.domain.ddd.AggregateRoot;
+import com.example.satellite.domain.ddd.ValueObject;
+import com.example.satellite.infrastructure.hexagonal.InputAdapter;
+import com.example.satellite.infrastructure.hexagonal.OutputAdapter;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.core.importer.Location;
 import com.tngtech.archunit.junit.AnalyzeClasses;
@@ -10,6 +14,8 @@ import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 /**
  * Architecture tests using ArchUnit.
@@ -79,6 +85,33 @@ public class DddArchitectureTest {
             .or().resideInAPackage("com.example.satellite.application..")
             .should().dependOnClassesThat().resideInAPackage("org.springframework..")
             .because("the domain and application core layers must remain completely framework-independent.");
+
+    /**
+     * Enforces DDD concept validation: all classes annotated with @ValueObject must be immutable (all fields must be final).
+     */
+    @ArchTest
+    public static final ArchRule value_objects_must_be_immutable = fields()
+            .that().areDeclaredInClassesThat().areAnnotatedWith(ValueObject.class)
+            .should().beFinal()
+            .because("DDD Value Objects must be immutable.");
+
+    /**
+     * Enforces DDD concept validation: all classes annotated with @AggregateRoot must reside in the domain package.
+     */
+    @ArchTest
+    public static final ArchRule aggregate_roots_must_reside_in_domain = classes()
+            .that().areAnnotatedWith(AggregateRoot.class)
+            .should().resideInAPackage("com.example.satellite.domain..")
+            .because("DDD Aggregate Roots must be located inside the domain package core.");
+
+    /**
+     * Enforces Hexagonal concept validation: output adapters must reside in output infrastructure packages.
+     */
+    @ArchTest
+    public static final ArchRule output_adapters_must_reside_in_output_infrastructure = classes()
+            .that().areAnnotatedWith(OutputAdapter.class)
+            .should().resideInAPackage("com.example.satellite.infrastructure.adapters.output..")
+            .because("Hexagonal Driven Output Adapters must reside inside output adapters infrastructure.");
 
     /**
      * Prevent cyclic dependencies between subpackages.
