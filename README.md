@@ -4,26 +4,31 @@ This repository is a clean, simple demonstration of **Domain-Driven Design (DDD)
 
 It simulates a satellite tracking system, highlighting how core business logic is isolated from database technologies (swapping between a standard Java In-Memory database and an Oracle Database).
 
-## Key Features
+---
 
-1. **Domain-Driven Design (DDD)**:
-   - **Aggregate Root**: `Satellite` guards invariants (e.g. decommissioned satellites can't receive telemetry).
-   - **Value Objects**: `SatelliteId`, `Orbit`, and `Telemetry` enforce validation rules.
-   - **Domain Service**: `CollisionRiskService` checks orbits for collision risks.
-   - **Domain Repository Interface**: `SatelliteRepository` is pure and agnostic of database technologies.
+## 📐 Architectural Framework
 
-2. **Hexagonal Architecture**:
-   - **Hexagon Core**: Encompasses the Domain and Application layers (`SatelliteApplicationService` input port).
-   - **Driving Input Adapter**: `SatelliteConsoleAdapter` drives the simulation.
-   - **Driven Output Adapters**: `InMemorySatelliteRepository` and `OracleSatelliteRepository` implement the repository port.
-   - We demonstrate database migration by changing a **single dependency instantiation line** at the application bootstrap composer (`Main.java`).
+### 1. Hexagonal & DDD Layer Architecture
+The core Hexagon isolates business invariants (Domain Entities, Aggregates, Value Objects, and Application Services) from external infrastructure adapter details (REST APIs, CLI Consoles, and SQL Databases). 
 
-3. **ArchUnit Boundary Enforcement**:
-   - Automated tests enforce architecture rules: core packages cannot access adapters, and input adapters cannot depend on output adapters directly.
+![Hexagonal & DDD Architecture Diagram](images/hexagonal_ddd_architecture.png)
+
+* **Domain Core**: Holds pure business rules (like the `Satellite` aggregate root guarding invariants). Has zero dependencies.
+* **Ports**: Boundary interfaces (like `SatelliteRepository` output port).
+* **Adapters**: Concrete implementations (like `InMemorySatelliteRepository` or `SatelliteConsoleAdapter`).
 
 ---
 
-## Getting Started
+### 2. ArchUnit Boundary Enforcement
+ArchUnit is an assertion library used to automatically verify package dependencies during standard unit test execution.
+
+![ArchUnit Test Rules Infographic](images/archunit_validation_flow.png)
+
+ArchUnit tests scan the compiled classes and fail the build if any forbidden dependencies occur (e.g. if the Domain layer imports an infrastructure database adapter).
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
 * Java 17
@@ -41,7 +46,32 @@ mvn compile exec:java -Dexec.mainClass="com.example.satellite.Main"
 
 ---
 
-## Project Structure
+## 🧪 How to Demonstrate an Architecture Violation
+
+To show a live architectural boundary failure during a demo, follow these steps:
+
+1. Open **`Satellite.java`** (`src/main/java/com/example/satellite/domain/Satellite.java`).
+2. Add an illegal import to database output persistence adapters:
+   ```java
+   import com.example.satellite.infrastructure.adapters.output.persistence.OracleSatelliteRepository;
+   ```
+3. Declare a dummy field reference inside the class:
+   ```java
+   private OracleSatelliteRepository illegalDbReference;
+   ```
+4. Run the tests in your terminal:
+   ```bash
+   mvn test
+   ```
+5. Observe the test suite fail with a description of the boundary layer violation:
+   ```text
+   Architecture Violation [Rules: hexagonal_layers_should_be_respected]
+   Violation: Layer 'Domain' is not allowed to depend on Layer 'OutputAdapters'
+   ```
+
+---
+
+## 📂 Project Structure
 ```text
 src/
 ├── main/java/com/example/satellite/
